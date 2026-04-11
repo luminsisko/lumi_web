@@ -27,6 +27,32 @@ p {
   background: #f5f5f5;
 }
 
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.controls label {
+  margin: 0;
+}
+
+.controls input {
+  width: 120px;
+  padding: 8px 10px;
+  border: 1px solid #c8c8c8;
+  border-radius: 8px;
+}
+
+.controls button {
+  padding: 8px 12px;
+  border: 1px solid #c8c8c8;
+  border-radius: 8px;
+  background: #ffffff;
+  cursor: pointer;
+}
+
 .recommendations {
   margin-top: 24px;
 }

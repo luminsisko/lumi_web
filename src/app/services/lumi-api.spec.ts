@@ -81,13 +81,25 @@ describe('LumiApi', () => {
   });
 
   it('should send normalized numeric query params for nearby places', () => {
-    service.getNearbyPlaces('60.1699', '24.9384').subscribe();
+    service.getNearbyPlaces('60.1699', '24.9384', '500', '10').subscribe();
 
     const request = httpTesting.expectOne((req) => req.url === '/api/places/nearby');
 
     expect(request.request.method).toBe('GET');
     expect(request.request.params.get('lat')).toBe('60.1699');
     expect(request.request.params.get('lon')).toBe('24.9384');
+    expect(request.request.params.get('radius')).toBe('500');
+    expect(request.request.params.get('limit')).toBe('10');
+
+    request.flush([]);
+  });
+
+  it('should use the default nearby places radius and limit when none is provided', () => {
+    service.getNearbyPlaces(60.1699, 24.9384).subscribe();
+
+    const request = httpTesting.expectOne(
+      '/api/places/nearby?lat=60.1699&lon=24.9384&radius=250&limit=20'
+    );
 
     request.flush([]);
   });
@@ -99,7 +111,9 @@ describe('LumiApi', () => {
       actual = response;
     });
 
-    const request = httpTesting.expectOne('/api/places/nearby?lat=60.1699&lon=24.9384');
+    const request = httpTesting.expectOne(
+      '/api/places/nearby?lat=60.1699&lon=24.9384&radius=250&limit=20'
+    );
 
     request.flush({
       places: [
@@ -135,6 +149,20 @@ describe('LumiApi', () => {
   it('should reject invalid nearby place coordinates before the request is sent', () => {
     expect(() => service.getNearbyPlaces('north', '24.9384')).toThrowError(
       'Invalid lat coordinate: north'
+    );
+    httpTesting.expectNone('/api/places/nearby');
+  });
+
+  it('should reject invalid nearby place radius before the request is sent', () => {
+    expect(() => service.getNearbyPlaces('60.1699', '24.9384', 'zero')).toThrowError(
+      'Invalid radius: zero'
+    );
+    httpTesting.expectNone('/api/places/nearby');
+  });
+
+  it('should reject invalid nearby place limit before the request is sent', () => {
+    expect(() => service.getNearbyPlaces('60.1699', '24.9384', '250', '0')).toThrowError(
+      'Invalid limit: 0'
     );
     httpTesting.expectNone('/api/places/nearby');
   });

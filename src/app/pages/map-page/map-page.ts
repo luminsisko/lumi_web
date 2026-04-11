@@ -13,10 +13,14 @@ export class MapPage implements AfterViewInit, OnInit {
   private selectedMarker: L.Marker | null = null;
   private nearbyPlaceMarkers: L.Marker[] = [];
   private lumiApi = inject(LumiApi);
+  private selectedLat: number | null = null;
+  private selectedLng: number | null = null;
 
   selectedCoordinates = 'Nothing selected yet';
   backendStatus = 'Backend not checked yet';
   nearbyPlaces: NearbyPlace[] = [];
+  nearbyRadius = 250;
+  nearbyLimit = 20;
   isLoading = false;
 
   weather: WeatherResponse | null = null;
@@ -55,6 +59,8 @@ export class MapPage implements AfterViewInit, OnInit {
       this.ngZone.run(() => {
         const lat = event.latlng.lat;
         const lng = event.latlng.lng;
+        this.selectedLat = lat;
+        this.selectedLng = lng;
 
         this.selectedCoordinates = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
 
@@ -69,6 +75,36 @@ export class MapPage implements AfterViewInit, OnInit {
         this.cdr.detectChanges();
       });
     });
+  }
+
+  onNearbyRadiusInput(value: string): void {
+    const parsed = Number.parseFloat(value);
+
+    if (Number.isFinite(parsed) && parsed > 0) {
+      this.nearbyRadius = parsed;
+      return;
+    }
+
+    this.nearbyRadius = 250;
+  }
+
+  onNearbyLimitInput(value: string): void {
+    const parsed = Number.parseInt(value, 10);
+
+    if (Number.isInteger(parsed) && parsed > 0) {
+      this.nearbyLimit = parsed;
+      return;
+    }
+
+    this.nearbyLimit = 20;
+  }
+
+  reloadNearbyPlaces(): void {
+    if (this.selectedLat == null || this.selectedLng == null) {
+      return;
+    }
+
+    this.loadNearbyPlaces(this.selectedLat, this.selectedLng);
   }
 
   private loadWeather(lat: number, lng: number): void {
@@ -94,7 +130,7 @@ export class MapPage implements AfterViewInit, OnInit {
     this.nearbyPlaces = [];
     this.clearNearbyPlaceMarkers();
 
-    this.lumiApi.getNearbyPlaces(lat, lng).subscribe({
+    this.lumiApi.getNearbyPlaces(lat, lng, this.nearbyRadius, this.nearbyLimit).subscribe({
       next: (response) => {
         this.nearbyPlaces = response;
         this.addNearbyPlaceMarkers(lat, lng);

@@ -19,6 +19,28 @@
     <span>{{ weatherStatus }}</span>
   </div>
 
+  <div class="coords controls">
+    <label for="nearby-radius"><strong>Nearby places radius (meters):</strong></label>
+    <input
+      id="nearby-radius"
+      type="number"
+      min="1"
+      step="1"
+      [value]="nearbyRadius"
+      (input)="onNearbyRadiusInput($any($event.target).value)"
+    />
+    <label for="nearby-limit"><strong>Limit:</strong></label>
+    <input
+      id="nearby-limit"
+      type="number"
+      min="1"
+      step="1"
+      [value]="nearbyLimit"
+      (input)="onNearbyLimitInput($any($event.target).value)"
+    />
+    <button type="button" (click)="reloadNearbyPlaces()">Reload nearby places</button>
+  </div>
+
   @if (weather) {
     <div class="recommendation-card">
       <h2>Location context</h2>
@@ -29,6 +51,7 @@
       <p><strong>Feels like:</strong> {{ weather.current.apparent_temperature }} degrees C</p>
       <p><strong>Wind:</strong> {{ weather.current.wind_speed_10m }} km/h</p>
       <p><strong>Cloud cover:</strong> {{ weather.current.cloud_cover }} %</p>
+      <p><strong>Precipitation:</strong> {{ weather.current.precipitation }}</p>
       <p><strong>Rain:</strong> {{ weather.current.rain }}</p>
       <p><strong>Showers:</strong> {{ weather.current.showers }}</p>
       <p><strong>Snowfall:</strong> {{ weather.current.snowfall }}</p>

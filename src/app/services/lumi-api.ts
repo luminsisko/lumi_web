@@ -114,11 +114,18 @@ export class LumiApi {
       .pipe(map((response) => this.normalizeWeather(response)));
   }
 
-  getNearbyPlaces(lat: number | string, lon: number | string): Observable<NearbyPlace[]> {
+  getNearbyPlaces(
+    lat: number | string,
+    lon: number | string,
+    radius: number | string = 250,
+    limit: number | string = 20
+  ): Observable<NearbyPlace[]> {
     const params = new HttpParams({
       fromObject: {
         lat: this.parseCoordinate(lat, 'lat'),
-        lon: this.parseCoordinate(lon, 'lon')
+        lon: this.parseCoordinate(lon, 'lon'),
+        radius: this.parsePositiveNumber(radius, 'radius'),
+        limit: this.parsePositiveInteger(limit, 'limit')
       }
     });
 
@@ -132,6 +139,26 @@ export class LumiApi {
 
     if (!Number.isFinite(parsed)) {
       throw new Error(`Invalid ${label} coordinate: ${value}`);
+    }
+
+    return parsed.toString();
+  }
+
+  private parsePositiveNumber(value: number | string, label: string): string {
+    const parsed = typeof value === 'number' ? value : Number.parseFloat(value.trim());
+
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      throw new Error(`Invalid ${label}: ${value}`);
+    }
+
+    return parsed.toString();
+  }
+
+  private parsePositiveInteger(value: number | string, label: string): string {
+    const parsed = typeof value === 'number' ? value : Number.parseFloat(value.trim());
+
+    if (!Number.isInteger(parsed) || parsed <= 0) {
+      throw new Error(`Invalid ${label}: ${value}`);
     }
 
     return parsed.toString();
