@@ -41,6 +41,8 @@ export interface NearbyPlace {
   distance_meters: number | null;
 }
 
+export type AstronomyResponse = Record<string, unknown>;
+
 export interface WeatherResponse {
   timezone: string | null;
   current: {
@@ -114,6 +116,22 @@ export class LumiApi {
       .pipe(map((response) => this.normalizeWeather(response)));
   }
 
+  getAstronomy(
+    lat: number | string,
+    lon: number | string,
+    date: string
+  ): Observable<AstronomyResponse> {
+    const params = new HttpParams({
+      fromObject: {
+        lat: this.parseCoordinate(lat, 'lat'),
+        lon: this.parseCoordinate(lon, 'lon'),
+        date: this.parseDate(date)
+      }
+    });
+
+    return this.http.get<AstronomyResponse>(`${this.baseUrl}/astronomy`, { params });
+  }
+
   getNearbyPlaces(
     lat: number | string,
     lon: number | string,
@@ -162,6 +180,16 @@ export class LumiApi {
     }
 
     return parsed.toString();
+  }
+
+  private parseDate(value: string): string {
+    const trimmed = value.trim();
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+      throw new Error(`Invalid date: ${value}`);
+    }
+
+    return trimmed;
   }
 
   private normalizeWeather(response: WeatherApiResponse): WeatherResponse {

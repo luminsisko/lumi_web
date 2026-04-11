@@ -1,29 +1,73 @@
+import { KeyValuePipe } from '@angular/common';
 import { AfterViewInit, ChangeDetectorRef, Component, NgZone, OnInit, inject } from '@angular/core';
 import * as L from 'leaflet';
-import { LumiApi, NearbyPlace, WeatherResponse } from '../../services/lumi-api';
+import { AstronomyResponse, LumiApi, NearbyPlace, WeatherResponse } from '../../services/lumi-api';
 
 @Component({
   selector: 'app-map-page',
-  imports: [],
+  imports: [KeyValuePipe],
   templateUrl: './map-page.html',
   styleUrl: './map-page.scss'
 })
 export class MapPage implements AfterViewInit, OnInit {
+  private readonly fieldLabels: Record<string, string> = {
+    timezone: 'Timezone',
+    time: 'Local Time',
+    temperature_2m: 'Temperature',
+    apparent_temperature: 'Feels Like',
+    wind_speed_10m: 'Wind Speed',
+    cloud_cover: 'Cloud Cover',
+    precipitation: 'Precipitation',
+    rain: 'Rain',
+    showers: 'Showers',
+    snowfall: 'Snowfall',
+    sunrise: 'Sunrise',
+    sunset: 'Sunset',
+    osm_id: 'OSM ID',
+    osm_type: 'OSM Type',
+    latitude: 'Latitude',
+    longitude: 'Longitude',
+    category: 'Category',
+    subcategory: 'Subcategory',
+    address: 'Address',
+    distance_meters: 'Distance',
+    moonrise: 'Moonrise',
+    moonset: 'Moonset',
+    moon_phase: 'Moon Phase',
+    moon_illumination: 'Moon Illumination',
+    dawn: 'Dawn',
+    dusk: 'Dusk',
+    first_light: 'First Light',
+    last_light: 'Last Light',
+    golden_hour: 'Golden Hour',
+    day_length: 'Day Length',
+    solar_noon: 'Solar Noon'
+  };
+
   private map!: L.Map;
   private selectedMarker: L.Marker | null = null;
   private nearbyPlaceMarkers: L.Marker[] = [];
   private lumiApi = inject(LumiApi);
   private selectedLat: number | null = null;
   private selectedLng: number | null = null;
+  private weatherLoadToken = 0;
+  private nearbyPlacesLoadToken = 0;
+  private weatherLoaded = false;
+  private astronomyLoaded = false;
+  private weatherErrorMessage: string | null = null;
+  private astronomyErrorMessage: string | null = null;
 
   selectedCoordinates = 'Nothing selected yet';
   backendStatus = 'Backend not checked yet';
+  nearbyPlacesStatus = 'Nearby places not loaded yet';
   nearbyPlaces: NearbyPlace[] = [];
   nearbyRadius = 250;
   nearbyLimit = 20;
   isLoading = false;
 
   weather: WeatherResponse | null = null;
+  astronomy: AstronomyResponse | null = null;
+  astronomyDate = this.getCurrentDateString();
   weatherStatus = 'Weather not loaded yet';
 
   constructor(
@@ -108,38 +152,91 @@ export class MapPage implements AfterViewInit, OnInit {
   }
 
   private loadWeather(lat: number, lng: number): void {
-    this.weatherStatus = 'Loading weather...';
+    const loadToken = ++this.weatherLoadToken;
+
+    this.weatherStatus = 'Loading weather and astronomy...';
     this.weather = null;
+    this.astronomy = null;
+    this.weatherLoaded = false;
+    this.astronomyLoaded = false;
+    this.weatherErrorMessage = null;
+    this.astronomyErrorMessage = null;
 
     this.lumiApi.getWeather(lat, lng).subscribe({
       next: (response) => {
+        if (loadToken !== this.weatherLoadToken) {
+          return;
+        }
+
         this.weather = response;
-        this.weatherStatus = 'Weather loaded';
+        this.weatherLoaded = true;
+        this.updateWeatherStatus();
         this.cdr.detectChanges();
       },
       error: (error) => {
+        if (loadToken !== this.weatherLoadToken) {
+          return;
+        }
+
         console.error('Weather request failed:', error);
-        this.weatherStatus = `Weather error: ${error.message}`;
+        this.weatherErrorMessage = error.message;
+        this.updateWeatherStatus();
+        this.cdr.detectChanges();
+      }
+    });
+
+    this.lumiApi.getAstronomy(lat, lng, this.astronomyDate).subscribe({
+      next: (response) => {
+        if (loadToken !== this.weatherLoadToken) {
+          return;
+        }
+
+        this.astronomy = response;
+        this.astronomyLoaded = true;
+        this.updateWeatherStatus();
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        if (loadToken !== this.weatherLoadToken) {
+          return;
+        }
+
+        console.error('Astronomy request failed:', error);
+        this.astronomyErrorMessage = error.message;
+        this.updateWeatherStatus();
         this.cdr.detectChanges();
       }
     });
   }
 
   private loadNearbyPlaces(lat: number, lng: number): void {
+    const loadToken = ++this.nearbyPlacesLoadToken;
+
     this.isLoading = true;
+    this.nearbyPlacesStatus = 'Loading nearby places...';
     this.nearbyPlaces = [];
     this.clearNearbyPlaceMarkers();
 
     this.lumiApi.getNearbyPlaces(lat, lng, this.nearbyRadius, this.nearbyLimit).subscribe({
       next: (response) => {
+        if (loadToken !== this.nearbyPlacesLoadToken) {
+          return;
+        }
+
         this.nearbyPlaces = response;
         this.addNearbyPlaceMarkers(lat, lng);
+        this.nearbyPlacesStatus =
+          response.length > 0 ? `Loaded ${response.length} nearby places` : 'No nearby places found';
         this.isLoading = false;
         this.cdr.detectChanges();
       },
       error: (error) => {
+        if (loadToken !== this.nearbyPlacesLoadToken) {
+          return;
+        }
+
         console.error('Nearby places request failed:', error);
-        this.backendStatus = `Nearby places error: ${error.message}`;
+        this.nearbyPlacesStatus = `Nearby places error: ${error.message}`;
         this.isLoading = false;
         this.cdr.detectChanges();
       }
@@ -181,5 +278,170 @@ export class MapPage implements AfterViewInit, OnInit {
     }
 
     this.nearbyPlaceMarkers = [];
+  }
+
+  formatFieldLabel(value: string): string {
+    const explicitLabel = this.fieldLabels[value];
+
+    if (explicitLabel) {
+      return explicitLabel;
+    }
+
+    return value
+      .replace(/_/g, ' ')
+      .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  }
+
+  formatFieldValue(field: string, value: unknown): string {
+    if (value == null) {
+      return '';
+    }
+
+    if (typeof value === 'boolean') {
+      return value ? 'Yes' : 'No';
+    }
+
+    if (typeof value === 'number') {
+      switch (field) {
+        case 'temperature_2m':
+        case 'apparent_temperature':
+          return `${value} °C`;
+        case 'wind_speed_10m':
+          return `${value} km/h`;
+        case 'cloud_cover':
+        case 'moon_illumination':
+          return `${value} %`;
+        case 'distance_meters':
+          return `${value} m`;
+        default:
+          return `${value}`;
+      }
+    }
+
+    if (typeof value === 'string') {
+      return this.formatStringValue(field, value);
+    }
+
+    if (Array.isArray(value)) {
+      return value.map((item) => this.formatFieldValue(field, item)).filter(Boolean).join(', ');
+    }
+
+    return this.formatObjectValue(value);
+  }
+
+  hasDisplayValue(value: unknown): boolean {
+    if (value == null) {
+      return false;
+    }
+
+    if (typeof value === 'string') {
+      return value.trim().length > 0;
+    }
+
+    if (Array.isArray(value)) {
+      return value.length > 0;
+    }
+
+    if (typeof value === 'object') {
+      return Object.keys(value).length > 0;
+    }
+
+    return true;
+  }
+
+  private formatObjectValue(value: object): string {
+    return Object.entries(value)
+      .filter(([, item]) => this.hasDisplayValue(item))
+      .map(([key, item]) => `${this.formatFieldLabel(key)}: ${this.formatFieldValue(key, item)}`)
+      .join(', ');
+  }
+
+  private formatStringValue(field: string, value: string): string {
+    const trimmed = value.trim();
+
+    if (trimmed.length === 0) {
+      return '';
+    }
+
+    if (this.looksLikeIsoDateTime(trimmed)) {
+      return this.formatDateTime(trimmed);
+    }
+
+    if (field === 'day_length') {
+      return trimmed.replace(/_/g, ' ');
+    }
+
+    return trimmed.replace(/_/g, ' ');
+  }
+
+  private formatDateTime(value: string): string {
+    const parsed = new Date(value);
+
+    if (Number.isNaN(parsed.getTime())) {
+      return value;
+    }
+
+    return new Intl.DateTimeFormat(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(parsed);
+  }
+
+  private looksLikeIsoDateTime(value: string): boolean {
+    return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(value);
+  }
+
+  private updateWeatherStatus(): void {
+    if (this.weather && this.astronomy) {
+      this.weatherStatus = 'Weather and astronomy loaded';
+      return;
+    }
+
+    if (this.weatherLoaded && this.astronomyErrorMessage) {
+      this.weatherStatus = `Weather loaded, astronomy error: ${this.astronomyErrorMessage}`;
+      return;
+    }
+
+    if (this.astronomyLoaded && this.weatherErrorMessage) {
+      this.weatherStatus = `Astronomy loaded, weather error: ${this.weatherErrorMessage}`;
+      return;
+    }
+
+    if (this.weatherErrorMessage && this.astronomyErrorMessage) {
+      this.weatherStatus = `Weather error: ${this.weatherErrorMessage}; Astronomy error: ${this.astronomyErrorMessage}`;
+      return;
+    }
+
+    if (this.weatherLoaded) {
+      this.weatherStatus = 'Weather loaded, astronomy loading...';
+      return;
+    }
+
+    if (this.astronomyLoaded) {
+      this.weatherStatus = 'Astronomy loaded, weather loading...';
+      return;
+    }
+
+    if (this.weatherErrorMessage) {
+      this.weatherStatus = `Weather error: ${this.weatherErrorMessage}; astronomy loading...`;
+      return;
+    }
+
+    if (this.astronomyErrorMessage) {
+      this.weatherStatus = `Astronomy error: ${this.astronomyErrorMessage}; weather loading...`;
+    }
+  }
+
+  private getCurrentDateString(): string {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = `${now.getMonth() + 1}`.padStart(2, '0');
+    const day = `${now.getDate()}`.padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
   }
 }

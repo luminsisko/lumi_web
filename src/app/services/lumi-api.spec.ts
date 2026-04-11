@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
-import { LumiApi, NearbyPlace, WeatherResponse } from './lumi-api';
+import { AstronomyResponse, LumiApi, NearbyPlace, WeatherResponse } from './lumi-api';
 
 describe('LumiApi', () => {
   let service: LumiApi;
@@ -78,6 +78,52 @@ describe('LumiApi', () => {
       'Invalid lat coordinate: north'
     );
     httpTesting.expectNone('/api/weather');
+  });
+
+  it('should send normalized query params for astronomy', () => {
+    service.getAstronomy('65.01', '25.47', '2026-03-22').subscribe();
+
+    const request = httpTesting.expectOne((req) => req.url === '/api/astronomy');
+
+    expect(request.request.method).toBe('GET');
+    expect(request.request.params.get('lat')).toBe('65.01');
+    expect(request.request.params.get('lon')).toBe('25.47');
+    expect(request.request.params.get('date')).toBe('2026-03-22');
+
+    request.flush({});
+  });
+
+  it('should return astronomy responses as-is', () => {
+    let actual: AstronomyResponse | null = null;
+
+    service.getAstronomy(65.01, 25.47, '2026-03-22').subscribe((response) => {
+      actual = response;
+    });
+
+    const request = httpTesting.expectOne('/api/astronomy?lat=65.01&lon=25.47&date=2026-03-22');
+
+    request.flush({
+      sunrise: '06:22',
+      sunset: '18:41',
+      moon: {
+        phase: 'waxing crescent'
+      }
+    });
+
+    expect(actual).toEqual({
+      sunrise: '06:22',
+      sunset: '18:41',
+      moon: {
+        phase: 'waxing crescent'
+      }
+    });
+  });
+
+  it('should reject invalid astronomy dates before the request is sent', () => {
+    expect(() => service.getAstronomy('65.01', '25.47', '22-03-2026')).toThrowError(
+      'Invalid date: 22-03-2026'
+    );
+    httpTesting.expectNone('/api/astronomy');
   });
 
   it('should send normalized numeric query params for nearby places', () => {

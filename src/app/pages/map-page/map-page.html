@@ -1,6 +1,6 @@
 <div class="page">
   <h1>Lumi Map</h1>
-  <p>Tap the map to get coordinates and load Lumi recommendations.</p>
+  <p>Tap the map to get coordinates, weather, astronomy, and nearby places.</p>
 
   <div id="map"></div>
 
@@ -17,6 +17,11 @@
   <div class="coords">
     <strong>Weather status:</strong>
     <span>{{ weatherStatus }}</span>
+  </div>
+
+  <div class="coords">
+    <strong>Nearby places status:</strong>
+    <span>{{ nearbyPlacesStatus }}</span>
   </div>
 
   <div class="coords controls">
@@ -41,47 +46,104 @@
     <button type="button" (click)="reloadNearbyPlaces()">Reload nearby places</button>
   </div>
 
-  @if (weather) {
+  @if (weather || astronomy) {
     <div class="recommendation-card">
       <h2>Location context</h2>
 
-      <p><strong>Timezone:</strong> {{ weather.timezone }}</p>
-      <p><strong>Local time:</strong> {{ weather.current.time }}</p>
-      <p><strong>Temperature:</strong> {{ weather.current.temperature_2m }} degrees C</p>
-      <p><strong>Feels like:</strong> {{ weather.current.apparent_temperature }} degrees C</p>
-      <p><strong>Wind:</strong> {{ weather.current.wind_speed_10m }} km/h</p>
-      <p><strong>Cloud cover:</strong> {{ weather.current.cloud_cover }} %</p>
-      <p><strong>Precipitation:</strong> {{ weather.current.precipitation }}</p>
-      <p><strong>Rain:</strong> {{ weather.current.rain }}</p>
-      <p><strong>Showers:</strong> {{ weather.current.showers }}</p>
-      <p><strong>Snowfall:</strong> {{ weather.current.snowfall }}</p>
-      <p><strong>Sunrise:</strong> {{ weather.sunrise }}</p>
-      <p><strong>Sunset:</strong> {{ weather.sunset }}</p>
-    </div>
-
-    <div class="recommendations">
-      <h2>Nearby places</h2>
-
-      @if (!isLoading && nearbyPlaces.length === 0) {
-        <p>No nearby places found for this point.</p>
+      @if (weather) {
+        @if (hasDisplayValue(weather.timezone)) {
+          <p><strong>{{ formatFieldLabel('timezone') }}:</strong> {{ formatFieldValue('timezone', weather.timezone) }}</p>
+        }
+        @if (hasDisplayValue(weather.current.time)) {
+          <p><strong>{{ formatFieldLabel('time') }}:</strong> {{ formatFieldValue('time', weather.current.time) }}</p>
+        }
+        @if (hasDisplayValue(weather.current.temperature_2m)) {
+          <p><strong>{{ formatFieldLabel('temperature_2m') }}:</strong> {{ formatFieldValue('temperature_2m', weather.current.temperature_2m) }}</p>
+        }
+        @if (hasDisplayValue(weather.current.apparent_temperature)) {
+          <p><strong>{{ formatFieldLabel('apparent_temperature') }}:</strong> {{ formatFieldValue('apparent_temperature', weather.current.apparent_temperature) }}</p>
+        }
+        @if (hasDisplayValue(weather.current.wind_speed_10m)) {
+          <p><strong>{{ formatFieldLabel('wind_speed_10m') }}:</strong> {{ formatFieldValue('wind_speed_10m', weather.current.wind_speed_10m) }}</p>
+        }
+        @if (hasDisplayValue(weather.current.cloud_cover)) {
+          <p><strong>{{ formatFieldLabel('cloud_cover') }}:</strong> {{ formatFieldValue('cloud_cover', weather.current.cloud_cover) }}</p>
+        }
+        @if (hasDisplayValue(weather.current.precipitation)) {
+          <p><strong>{{ formatFieldLabel('precipitation') }}:</strong> {{ formatFieldValue('precipitation', weather.current.precipitation) }}</p>
+        }
+        @if (hasDisplayValue(weather.current.rain)) {
+          <p><strong>{{ formatFieldLabel('rain') }}:</strong> {{ formatFieldValue('rain', weather.current.rain) }}</p>
+        }
+        @if (hasDisplayValue(weather.current.showers)) {
+          <p><strong>{{ formatFieldLabel('showers') }}:</strong> {{ formatFieldValue('showers', weather.current.showers) }}</p>
+        }
+        @if (hasDisplayValue(weather.current.snowfall)) {
+          <p><strong>{{ formatFieldLabel('snowfall') }}:</strong> {{ formatFieldValue('snowfall', weather.current.snowfall) }}</p>
+        }
+        @if (hasDisplayValue(weather.sunrise)) {
+          <p><strong>{{ formatFieldLabel('sunrise') }}:</strong> {{ formatFieldValue('sunrise', weather.sunrise) }}</p>
+        }
+        @if (hasDisplayValue(weather.sunset)) {
+          <p><strong>{{ formatFieldLabel('sunset') }}:</strong> {{ formatFieldValue('sunset', weather.sunset) }}</p>
+        }
       }
 
-      @for (place of nearbyPlaces; track place.osm_id ?? place.name) {
-        <div class="recommendation-card">
-          <h3>{{ place.name }}</h3>
+      @if (astronomy) {
+        <h3>Astronomy</h3>
+        @if (hasDisplayValue(astronomyDate)) {
+          <p><strong>Date:</strong> {{ astronomyDate }}</p>
+        }
 
-          <p><strong>OSM ID:</strong> {{ place.osm_id ?? 'Unknown' }}</p>
-          <p><strong>OSM type:</strong> {{ place.osm_type ?? 'Unknown' }}</p>
-          <p><strong>Latitude:</strong> {{ place.latitude ?? 'Unknown' }}</p>
-          <p><strong>Longitude:</strong> {{ place.longitude ?? 'Unknown' }}</p>
-          <p><strong>Category:</strong> {{ place.category ?? 'Unknown' }}</p>
-          <p><strong>Subcategory:</strong> {{ place.subcategory ?? 'Unknown' }}</p>
-          <p><strong>Address:</strong> {{ place.address ?? 'Unknown' }}</p>
-          <p><strong>Distance:</strong> {{ place.distance_meters ?? 'Unknown' }} meters</p>
-        </div>
+        @for (entry of astronomy | keyvalue; track entry.key) {
+          @if (hasDisplayValue(entry.value)) {
+            <p><strong>{{ formatFieldLabel(entry.key) }}:</strong> {{ formatFieldValue(entry.key, entry.value) }}</p>
+          }
+        }
       }
     </div>
+
   }
+
+  <div class="recommendations">
+    <h2>Nearby places</h2>
+
+    @if (!isLoading && nearbyPlaces.length === 0) {
+      <p>No nearby places found for this point.</p>
+    }
+
+    @for (place of nearbyPlaces; track place.osm_id ?? place.name) {
+      <div class="recommendation-card">
+        @if (hasDisplayValue(place.name)) {
+          <h3>{{ place.name }}</h3>
+        }
+        @if (hasDisplayValue(place.osm_id)) {
+          <p><strong>{{ formatFieldLabel('osm_id') }}:</strong> {{ formatFieldValue('osm_id', place.osm_id) }}</p>
+        }
+        @if (hasDisplayValue(place.osm_type)) {
+          <p><strong>{{ formatFieldLabel('osm_type') }}:</strong> {{ formatFieldValue('osm_type', place.osm_type) }}</p>
+        }
+        @if (hasDisplayValue(place.latitude)) {
+          <p><strong>{{ formatFieldLabel('latitude') }}:</strong> {{ formatFieldValue('latitude', place.latitude) }}</p>
+        }
+        @if (hasDisplayValue(place.longitude)) {
+          <p><strong>{{ formatFieldLabel('longitude') }}:</strong> {{ formatFieldValue('longitude', place.longitude) }}</p>
+        }
+        @if (hasDisplayValue(place.category)) {
+          <p><strong>{{ formatFieldLabel('category') }}:</strong> {{ formatFieldValue('category', place.category) }}</p>
+        }
+        @if (hasDisplayValue(place.subcategory)) {
+          <p><strong>{{ formatFieldLabel('subcategory') }}:</strong> {{ formatFieldValue('subcategory', place.subcategory) }}</p>
+        }
+        @if (hasDisplayValue(place.address)) {
+          <p><strong>{{ formatFieldLabel('address') }}:</strong> {{ formatFieldValue('address', place.address) }}</p>
+        }
+        @if (hasDisplayValue(place.distance_meters)) {
+          <p><strong>{{ formatFieldLabel('distance_meters') }}:</strong> {{ formatFieldValue('distance_meters', place.distance_meters) }}</p>
+        }
+      </div>
+    }
+  </div>
 
   @if (isLoading) {
     <div class="coords">
