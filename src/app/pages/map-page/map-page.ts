@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, NgZone, OnInit, inject } from '@angular/core';
 import * as L from 'leaflet';
-import { LumiApi, Suggestion, WeatherResponse } from '../../services/lumi-api';
+import { LumiApi, NearbyPlace, WeatherResponse } from '../../services/lumi-api';
 
 @Component({
   selector: 'app-map-page',
@@ -11,12 +11,12 @@ import { LumiApi, Suggestion, WeatherResponse } from '../../services/lumi-api';
 export class MapPage implements AfterViewInit, OnInit {
   private map!: L.Map;
   private selectedMarker: L.Marker | null = null;
-  private recommendationMarkers: L.Marker[] = [];
+  private nearbyPlaceMarkers: L.Marker[] = [];
   private lumiApi = inject(LumiApi);
 
   selectedCoordinates = 'Nothing selected yet';
   backendStatus = 'Backend not checked yet';
-  recommendations: Suggestion[] = [];
+  nearbyPlaces: NearbyPlace[] = [];
   isLoading = false;
 
   weather: WeatherResponse | null = null;
@@ -65,7 +65,7 @@ export class MapPage implements AfterViewInit, OnInit {
         this.selectedMarker = L.marker([lat, lng]).addTo(this.map);
 
         this.loadWeather(lat, lng);
-        this.loadRecommendations(lat, lng);
+        this.loadNearbyPlaces(lat, lng);
         this.cdr.detectChanges();
       });
     });
@@ -89,39 +89,31 @@ export class MapPage implements AfterViewInit, OnInit {
     });
   }
 
-  private loadRecommendations(lat: number, lng: number): void {
+  private loadNearbyPlaces(lat: number, lng: number): void {
     this.isLoading = true;
-    this.recommendations = [];
-    this.clearRecommendationMarkers();
+    this.nearbyPlaces = [];
+    this.clearNearbyPlaceMarkers();
 
-    this.lumiApi.walk({
-      area: '',
-      mood: 'calm',
-      time_available: 30,
-      transport: 'walk',
-      weather: 'dry',
-      user_lat: lat,
-      user_lon: lng
-    }).subscribe({
+    this.lumiApi.getNearbyPlaces(lat, lng).subscribe({
       next: (response) => {
-        this.recommendations = response.suggestions ?? [];
-        this.addRecommendationMarkers(lat, lng);
+        this.nearbyPlaces = response;
+        this.addNearbyPlaceMarkers(lat, lng);
         this.isLoading = false;
         this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Walk request failed:', error);
-        this.backendStatus = `Walk request error: ${error.message}`;
+        console.error('Nearby places request failed:', error);
+        this.backendStatus = `Nearby places error: ${error.message}`;
         this.isLoading = false;
         this.cdr.detectChanges();
       }
     });
   }
 
-  private addRecommendationMarkers(selectedLat: number, selectedLng: number): void {
+  private addNearbyPlaceMarkers(selectedLat: number, selectedLng: number): void {
     const bounds = L.latLngBounds([[selectedLat, selectedLng]]);
 
-    for (const item of this.recommendations) {
+    for (const item of this.nearbyPlaces) {
       if (item.latitude == null || item.longitude == null) {
         continue;
       }
@@ -130,11 +122,11 @@ export class MapPage implements AfterViewInit, OnInit {
         .addTo(this.map)
         .bindPopup(`
           <strong>${item.name}</strong><br>
-          ${item.category}<br>
+          ${item.category ?? 'Place'}<br>
           ${item.address ?? ''}
         `);
 
-      this.recommendationMarkers.push(marker);
+      this.nearbyPlaceMarkers.push(marker);
       bounds.extend([item.latitude, item.longitude]);
     }
 
@@ -143,11 +135,11 @@ export class MapPage implements AfterViewInit, OnInit {
     }
   }
 
-  private clearRecommendationMarkers(): void {
-    for (const marker of this.recommendationMarkers) {
+  private clearNearbyPlaceMarkers(): void {
+    for (const marker of this.nearbyPlaceMarkers) {
       this.map.removeLayer(marker);
     }
 
-    this.recommendationMarkers = [];
+    this.nearbyPlaceMarkers = [];
   }
 }

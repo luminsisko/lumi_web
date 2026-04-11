@@ -35,6 +35,28 @@
       <p><strong>Sunrise:</strong> {{ weather.sunrise }}</p>
       <p><strong>Sunset:</strong> {{ weather.sunset }}</p>
     </div>
+
+    <div class="recommendations">
+      <h2>Nearby places</h2>
+
+      @if (!isLoading && nearbyPlaces.length === 0) {
+        <p>No nearby places found for this point.</p>
+      }
+
+      @for (place of nearbyPlaces; track place.id ?? place.name) {
+        <div class="recommendation-card">
+          <h3>{{ place.name }}</h3>
+
+          <p><strong>Category:</strong> {{ place.category ?? 'Unknown' }}</p>
+          <p><strong>Area:</strong> {{ place.area ?? 'Unknown' }}</p>
+          <p><strong>Address:</strong> {{ place.address ?? 'Unknown' }}</p>
+
+          @if (place.description) {
+            <p>{{ place.description }}</p>
+          }
+        </div>
+      }
+    </div>
   }
 
   @if (isLoading) {
@@ -43,35 +65,4 @@
       <span>Lumi is looking for places...</span>
     </div>
   }
-
-  <div class="recommendations">
-    <h2>Lumi recommendations</h2>
-
-    @if (!isLoading && recommendations.length === 0) {
-      <p>No recommendations yet. Tap the map.</p>
-    }
-
-    @for (item of recommendations; track item.name) {
-      <div class="recommendation-card">
-        <h3>{{ item.name }}</h3>
-
-        <p><strong>Category:</strong> {{ item.category }}</p>
-        <p><strong>Area:</strong> {{ item.area }}</p>
-        <p><strong>Address:</strong> {{ item.address }}</p>
-        <p><strong>Score:</strong> {{ item.score }}</p>
-        <p>{{ item.description }}</p>
-
-        @if (item.reasoning.length > 0) {
-          <div class="reasoning">
-            <strong>Why Lumi suggests it:</strong>
-            <ul>
-              @for (reason of item.reasoning; track reason) {
-                <li>{{ reason }}</li>
-              }
-            </ul>
-          </div>
-        }
-      </div>
-    }
-  </div>
 </div>

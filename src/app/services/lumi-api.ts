@@ -29,6 +29,17 @@ export interface WalkResponse {
   suggestions: Suggestion[];
 }
 
+export interface NearbyPlace {
+  id?: string | number | null;
+  name: string;
+  category: string | null;
+  area: string | null;
+  description: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  address: string | null;
+}
+
 export interface WeatherResponse {
   timezone: string | null;
   current: {
@@ -56,12 +67,34 @@ interface WeatherApiResponse {
   weathercode?: number | null;
 }
 
+interface NearbyPlaceApiItem {
+  id?: string | number | null;
+  name?: string | null;
+  category?: string | null;
+  type?: string | null;
+  area?: string | null;
+  district?: string | null;
+  description?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  lat?: number | null;
+  lon?: number | null;
+  lng?: number | null;
+  address?: string | null;
+}
+
+interface NearbyPlacesApiResponse {
+  places?: NearbyPlaceApiItem[] | null;
+  results?: NearbyPlaceApiItem[] | null;
+  items?: NearbyPlaceApiItem[] | null;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class LumiApi {
   private http = inject(HttpClient);
-  private baseUrl = 'http://127.0.0.1:8000/api';
+  private baseUrl = '/api';
 
   getHealth(): Observable<unknown> {
     return this.http.get(`${this.baseUrl}/health`);
@@ -82,6 +115,19 @@ export class LumiApi {
     return this.http
       .get<WeatherApiResponse>(`${this.baseUrl}/weather`, { params })
       .pipe(map((response) => this.normalizeWeather(response)));
+  }
+
+  getNearbyPlaces(lat: number | string, lon: number | string): Observable<NearbyPlace[]> {
+    const params = new HttpParams({
+      fromObject: {
+        lat: this.parseCoordinate(lat, 'lat'),
+        lon: this.parseCoordinate(lon, 'lon')
+      }
+    });
+
+    return this.http
+      .get<NearbyPlaceApiItem[] | NearbyPlacesApiResponse>(`${this.baseUrl}/places/nearby`, { params })
+      .pipe(map((response) => this.normalizeNearbyPlaces(response)));
   }
 
   private parseCoordinate(value: number | string, label: 'lat' | 'lon'): string {
@@ -113,5 +159,24 @@ export class LumiApi {
       sunrise: response.sunrise ?? null,
       sunset: response.sunset ?? null
     };
+  }
+
+  private normalizeNearbyPlaces(
+    response: NearbyPlaceApiItem[] | NearbyPlacesApiResponse
+  ): NearbyPlace[] {
+    const places = Array.isArray(response)
+      ? response
+      : response.places ?? response.results ?? response.items ?? [];
+
+    return places.map((place) => ({
+      id: place.id ?? null,
+      name: place.name ?? 'Unnamed place',
+      category: place.category ?? place.type ?? null,
+      area: place.area ?? place.district ?? null,
+      description: place.description ?? null,
+      latitude: place.latitude ?? place.lat ?? null,
+      longitude: place.longitude ?? place.lng ?? place.lon ?? null,
+      address: place.address ?? null
+    }));
   }
 }

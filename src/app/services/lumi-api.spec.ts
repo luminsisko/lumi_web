@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
-import { LumiApi, WeatherResponse } from './lumi-api';
+import { LumiApi, NearbyPlace, WeatherResponse } from './lumi-api';
 
 describe('LumiApi', () => {
   let service: LumiApi;
@@ -78,5 +78,62 @@ describe('LumiApi', () => {
       'Invalid lat coordinate: north'
     );
     httpTesting.expectNone('/api/weather');
+  });
+
+  it('should send normalized numeric query params for nearby places', () => {
+    service.getNearbyPlaces('60.1699', '24.9384').subscribe();
+
+    const request = httpTesting.expectOne((req) => req.url === '/api/places/nearby');
+
+    expect(request.request.method).toBe('GET');
+    expect(request.request.params.get('lat')).toBe('60.1699');
+    expect(request.request.params.get('lon')).toBe('24.9384');
+
+    request.flush([]);
+  });
+
+  it('should normalize wrapped nearby places responses into the UI model', () => {
+    let actual: NearbyPlace[] = [];
+
+    service.getNearbyPlaces(60.1699, 24.9384).subscribe((response) => {
+      actual = response;
+    });
+
+    const request = httpTesting.expectOne('/api/places/nearby?lat=60.1699&lon=24.9384');
+
+    request.flush({
+      places: [
+        {
+          id: '1',
+          name: 'Cafe Esplanad',
+          type: 'cafe',
+          district: 'Kaartinkaupunki',
+          description: 'Popular cafe',
+          lat: 60.1675,
+          lng: 24.9476,
+          address: 'Pohjoisesplanadi 37'
+        }
+      ]
+    });
+
+    expect(actual).toEqual([
+      {
+        id: '1',
+        name: 'Cafe Esplanad',
+        category: 'cafe',
+        area: 'Kaartinkaupunki',
+        description: 'Popular cafe',
+        latitude: 60.1675,
+        longitude: 24.9476,
+        address: 'Pohjoisesplanadi 37'
+      }
+    ]);
+  });
+
+  it('should reject invalid nearby place coordinates before the request is sent', () => {
+    expect(() => service.getNearbyPlaces('north', '24.9384')).toThrowError(
+      'Invalid lat coordinate: north'
+    );
+    httpTesting.expectNone('/api/places/nearby');
   });
 });
