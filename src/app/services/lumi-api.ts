@@ -43,31 +43,34 @@ export interface NearbyPlace {
 
 export type AstronomyResponse = Record<string, unknown>;
 
-export interface WeatherResponse {
-  timezone: string | null;
-  current: {
-    time: string | null;
-    temperature_2m: number | null;
-    apparent_temperature: number | null;
-    precipitation: number | null;
-    rain: number | null;
-    showers: number | null;
-    snowfall: number | null;
-    cloud_cover: number | null;
-    wind_speed_10m: number | null;
-  };
-  sunrise: string | null;
-  sunset: string | null;
+export interface WeatherForecast extends Record<string, unknown> {
+  forecast_for: string | null;
+  condition: string | null;
+  intensity: string | null;
+  temperature_c: number | null;
+  feels_like_c: number | null;
+  wind_m_s: number | null;
+  gusts_m_s: number | null;
+  visibility_m: number | null;
+  fog: boolean | null;
+  snow: boolean | null;
+  precipitation_mm: number | null;
+  precipitation_probability: number | null;
+  thunder_probability: number | null;
+  confidence: number | null;
+  confidence_reason: string[] | null;
 }
 
-interface WeatherApiResponse {
-  timezone?: string | null;
-  current?: Partial<WeatherResponse['current']> | null;
-  sunrise?: string | null;
-  sunset?: string | null;
-  temperature?: number | null;
-  windspeed?: number | null;
-  weathercode?: number | null;
+export interface WeatherResponse extends Record<string, unknown> {
+  region_id: string | null;
+  now: WeatherForecast;
+  plus_1_hour: WeatherForecast;
+}
+
+interface WeatherApiResponse extends Record<string, unknown> {
+  region_id?: string | null;
+  now?: Record<string, unknown> | null;
+  plus_1_hour?: Record<string, unknown> | null;
 }
 
 interface NearbyPlaceApiItem {
@@ -193,24 +196,60 @@ export class LumiApi {
   }
 
   private normalizeWeather(response: WeatherApiResponse): WeatherResponse {
-    const current = response.current ?? {};
+    return {
+      ...response,
+      region_id: response.region_id ?? null,
+      now: this.normalizeWeatherForecast(response.now),
+      plus_1_hour: this.normalizeWeatherForecast(response.plus_1_hour)
+    };
+  }
+
+  private normalizeWeatherForecast(forecast: Record<string, unknown> | null | undefined): WeatherForecast {
+    const source = forecast ?? {};
 
     return {
-      timezone: response.timezone ?? null,
-      current: {
-        time: current.time ?? null,
-        temperature_2m: current.temperature_2m ?? response.temperature ?? null,
-        apparent_temperature: current.apparent_temperature ?? response.temperature ?? null,
-        precipitation: current.precipitation ?? null,
-        rain: current.rain ?? null,
-        showers: current.showers ?? null,
-        snowfall: current.snowfall ?? null,
-        cloud_cover: current.cloud_cover ?? response.weathercode ?? null,
-        wind_speed_10m: current.wind_speed_10m ?? response.windspeed ?? null
-      },
-      sunrise: response.sunrise ?? null,
-      sunset: response.sunset ?? null
+      ...source,
+      forecast_for: this.readNullableString(source, 'forecast_for'),
+      condition: this.readNullableString(source, 'condition'),
+      intensity: this.readNullableString(source, 'intensity'),
+      temperature_c: this.readNullableNumber(source, 'temperature_c'),
+      feels_like_c: this.readNullableNumber(source, 'feels_like_c'),
+      wind_m_s: this.readNullableNumber(source, 'wind_m_s'),
+      gusts_m_s: this.readNullableNumber(source, 'gusts_m_s'),
+      visibility_m: this.readNullableNumber(source, 'visibility_m'),
+      fog: this.readNullableBoolean(source, 'fog'),
+      snow: this.readNullableBoolean(source, 'snow'),
+      precipitation_mm: this.readNullableNumber(source, 'precipitation_mm'),
+      precipitation_probability: this.readNullableNumber(source, 'precipitation_probability'),
+      thunder_probability: this.readNullableNumber(source, 'thunder_probability'),
+      confidence: this.readNullableNumber(source, 'confidence'),
+      confidence_reason: this.readNullableStringArray(source, 'confidence_reason')
     };
+  }
+
+  private readNullableString(source: Record<string, unknown>, key: string): string | null {
+    const value = source[key];
+    return typeof value === 'string' ? value : null;
+  }
+
+  private readNullableNumber(source: Record<string, unknown>, key: string): number | null {
+    const value = source[key];
+    return typeof value === 'number' ? value : null;
+  }
+
+  private readNullableBoolean(source: Record<string, unknown>, key: string): boolean | null {
+    const value = source[key];
+    return typeof value === 'boolean' ? value : null;
+  }
+
+  private readNullableStringArray(source: Record<string, unknown>, key: string): string[] | null {
+    const value = source[key];
+
+    if (!Array.isArray(value)) {
+      return null;
+    }
+
+    return value.filter((item): item is string => typeof item === 'string');
   }
 
   private normalizeNearbyPlaces(

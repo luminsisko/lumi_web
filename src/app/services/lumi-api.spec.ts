@@ -34,13 +34,19 @@ describe('LumiApi', () => {
     expect(request.request.params.get('lon')).toBe('24.9384');
 
     request.flush({
-      temperature: 5.2,
-      windspeed: 15.1,
-      weathercode: 0
+      region_id: '87089969bffffff',
+      now: {
+        forecast_for: '2026-04-12T12:00:00',
+        condition: 'rain'
+      },
+      plus_1_hour: {
+        forecast_for: '2026-04-12T13:00:00',
+        condition: 'cloudy'
+      }
     });
   });
 
-  it('should normalize flat weather responses into the UI model', () => {
+  it('should normalize forecast weather responses into the UI model', () => {
     let actual: WeatherResponse | null = null;
 
     service.getWeather(60.1699, 24.9384).subscribe((response) => {
@@ -50,26 +56,79 @@ describe('LumiApi', () => {
     const request = httpTesting.expectOne('/api/weather?lat=60.1699&lon=24.9384');
 
     request.flush({
-      temperature: 5.2,
-      windspeed: 15.1,
-      weathercode: 0
+      region_id: '87089969bffffff',
+      now: {
+        forecast_for: '2026-04-12T12:00:00',
+        condition: 'rain',
+        intensity: 'light',
+        temperature_c: 3.8,
+        feels_like_c: 1.4,
+        wind_m_s: 6.2,
+        gusts_m_s: 10.1,
+        visibility_m: 900,
+        fog: true,
+        snow: false,
+        precipitation_mm: 0.7,
+        precipitation_probability: 80,
+        thunder_probability: 10,
+        confidence: 0.82,
+        confidence_reason: ['precip_probability_high', 'precip_range_narrow']
+      },
+      plus_1_hour: {
+        forecast_for: '2026-04-12T13:00:00',
+        condition: 'rain',
+        intensity: 'light',
+        temperature_c: 4.1,
+        feels_like_c: 1.8,
+        wind_m_s: 6.0,
+        gusts_m_s: 9.8,
+        visibility_m: 1100,
+        fog: false,
+        snow: false,
+        precipitation_mm: 0.6,
+        precipitation_probability: 75,
+        thunder_probability: 10,
+        confidence: 0.76,
+        confidence_reason: ['precip_probability_high']
+      }
     });
 
     expect(actual).toEqual({
-      timezone: null,
-      current: {
-        time: null,
-        temperature_2m: 5.2,
-        apparent_temperature: 5.2,
-        precipitation: null,
-        rain: null,
-        showers: null,
-        snowfall: null,
-        cloud_cover: 0,
-        wind_speed_10m: 15.1
+      region_id: '87089969bffffff',
+      now: {
+        forecast_for: '2026-04-12T12:00:00',
+        condition: 'rain',
+        intensity: 'light',
+        temperature_c: 3.8,
+        feels_like_c: 1.4,
+        wind_m_s: 6.2,
+        gusts_m_s: 10.1,
+        visibility_m: 900,
+        fog: true,
+        snow: false,
+        precipitation_mm: 0.7,
+        precipitation_probability: 80,
+        thunder_probability: 10,
+        confidence: 0.82,
+        confidence_reason: ['precip_probability_high', 'precip_range_narrow']
       },
-      sunrise: null,
-      sunset: null
+      plus_1_hour: {
+        forecast_for: '2026-04-12T13:00:00',
+        condition: 'rain',
+        intensity: 'light',
+        temperature_c: 4.1,
+        feels_like_c: 1.8,
+        wind_m_s: 6.0,
+        gusts_m_s: 9.8,
+        visibility_m: 1100,
+        fog: false,
+        snow: false,
+        precipitation_mm: 0.6,
+        precipitation_probability: 75,
+        thunder_probability: 10,
+        confidence: 0.76,
+        confidence_reason: ['precip_probability_high']
+      }
     });
   });
 

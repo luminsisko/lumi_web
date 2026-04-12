@@ -51,41 +51,28 @@
       <h2>Location context</h2>
 
       @if (weather) {
-        @if (hasDisplayValue(weather.timezone)) {
-          <p><strong>{{ formatFieldLabel('timezone') }}:</strong> {{ formatFieldValue('timezone', weather.timezone) }}</p>
+        @if (hasDisplayValue(weather.region_id)) {
+          <p><strong>{{ formatFieldLabel('region_id') }}:</strong> {{ formatFieldValue('region_id', weather.region_id) }}</p>
         }
-        @if (hasDisplayValue(weather.current.time)) {
-          <p><strong>{{ formatFieldLabel('time') }}:</strong> {{ formatFieldValue('time', weather.current.time) }}</p>
+
+        <h3>{{ formatFieldLabel('now') }}</h3>
+        @for (entry of weatherForecastEntries(weather.now); track entry[0]) {
+          @if (hasDisplayValue(entry[1])) {
+            <p><strong>{{ formatFieldLabel(entry[0]) }}:</strong> {{ formatFieldValue(entry[0], entry[1]) }}</p>
+          }
         }
-        @if (hasDisplayValue(weather.current.temperature_2m)) {
-          <p><strong>{{ formatFieldLabel('temperature_2m') }}:</strong> {{ formatFieldValue('temperature_2m', weather.current.temperature_2m) }}</p>
+
+        <h3>{{ formatFieldLabel('plus_1_hour') }}</h3>
+        @for (entry of weatherForecastEntries(weather.plus_1_hour); track entry[0]) {
+          @if (hasDisplayValue(entry[1])) {
+            <p><strong>{{ formatFieldLabel(entry[0]) }}:</strong> {{ formatFieldValue(entry[0], entry[1]) }}</p>
+          }
         }
-        @if (hasDisplayValue(weather.current.apparent_temperature)) {
-          <p><strong>{{ formatFieldLabel('apparent_temperature') }}:</strong> {{ formatFieldValue('apparent_temperature', weather.current.apparent_temperature) }}</p>
-        }
-        @if (hasDisplayValue(weather.current.wind_speed_10m)) {
-          <p><strong>{{ formatFieldLabel('wind_speed_10m') }}:</strong> {{ formatFieldValue('wind_speed_10m', weather.current.wind_speed_10m) }}</p>
-        }
-        @if (hasDisplayValue(weather.current.cloud_cover)) {
-          <p><strong>{{ formatFieldLabel('cloud_cover') }}:</strong> {{ formatFieldValue('cloud_cover', weather.current.cloud_cover) }}</p>
-        }
-        @if (hasDisplayValue(weather.current.precipitation)) {
-          <p><strong>{{ formatFieldLabel('precipitation') }}:</strong> {{ formatFieldValue('precipitation', weather.current.precipitation) }}</p>
-        }
-        @if (hasDisplayValue(weather.current.rain)) {
-          <p><strong>{{ formatFieldLabel('rain') }}:</strong> {{ formatFieldValue('rain', weather.current.rain) }}</p>
-        }
-        @if (hasDisplayValue(weather.current.showers)) {
-          <p><strong>{{ formatFieldLabel('showers') }}:</strong> {{ formatFieldValue('showers', weather.current.showers) }}</p>
-        }
-        @if (hasDisplayValue(weather.current.snowfall)) {
-          <p><strong>{{ formatFieldLabel('snowfall') }}:</strong> {{ formatFieldValue('snowfall', weather.current.snowfall) }}</p>
-        }
-        @if (hasDisplayValue(weather.sunrise)) {
-          <p><strong>{{ formatFieldLabel('sunrise') }}:</strong> {{ formatFieldValue('sunrise', weather.sunrise) }}</p>
-        }
-        @if (hasDisplayValue(weather.sunset)) {
-          <p><strong>{{ formatFieldLabel('sunset') }}:</strong> {{ formatFieldValue('sunset', weather.sunset) }}</p>
+
+        @for (entry of weather | keyvalue; track entry.key) {
+          @if (entry.key !== 'region_id' && entry.key !== 'now' && entry.key !== 'plus_1_hour' && hasDisplayValue(entry.value)) {
+            <p><strong>{{ formatFieldLabel(entry.key) }}:</strong> {{ formatFieldValue(entry.key, entry.value) }}</p>
+          }
         }
       }
 

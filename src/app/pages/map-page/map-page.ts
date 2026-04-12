@@ -1,7 +1,13 @@
 import { KeyValuePipe } from '@angular/common';
 import { AfterViewInit, ChangeDetectorRef, Component, NgZone, OnInit, inject } from '@angular/core';
 import * as L from 'leaflet';
-import { AstronomyResponse, LumiApi, NearbyPlace, WeatherResponse } from '../../services/lumi-api';
+import {
+  AstronomyResponse,
+  LumiApi,
+  NearbyPlace,
+  WeatherForecast,
+  WeatherResponse
+} from '../../services/lumi-api';
 
 @Component({
   selector: 'app-map-page',
@@ -11,16 +17,24 @@ import { AstronomyResponse, LumiApi, NearbyPlace, WeatherResponse } from '../../
 })
 export class MapPage implements AfterViewInit, OnInit {
   private readonly fieldLabels: Record<string, string> = {
-    timezone: 'Timezone',
-    time: 'Local Time',
-    temperature_2m: 'Temperature',
-    apparent_temperature: 'Feels Like',
-    wind_speed_10m: 'Wind Speed',
-    cloud_cover: 'Cloud Cover',
-    precipitation: 'Precipitation',
-    rain: 'Rain',
-    showers: 'Showers',
-    snowfall: 'Snowfall',
+    region_id: 'Weather Region',
+    now: 'Now',
+    plus_1_hour: 'In 1 Hour',
+    forecast_for: 'Forecast Time',
+    condition: 'Condition',
+    intensity: 'Intensity',
+    temperature_c: 'Temperature',
+    feels_like_c: 'Feels Like',
+    wind_m_s: 'Wind Speed',
+    gusts_m_s: 'Wind Gusts',
+    visibility_m: 'Visibility',
+    fog: 'Fog',
+    snow: 'Snow',
+    precipitation_mm: 'Precipitation',
+    precipitation_probability: 'Precipitation Probability',
+    thunder_probability: 'Thunder Probability',
+    confidence: 'Confidence',
+    confidence_reason: 'Confidence Reasons',
     sunrise: 'Sunrise',
     sunset: 'Sunset',
     osm_id: 'OSM ID',
@@ -304,16 +318,23 @@ export class MapPage implements AfterViewInit, OnInit {
 
     if (typeof value === 'number') {
       switch (field) {
-        case 'temperature_2m':
-        case 'apparent_temperature':
-          return `${value} °C`;
-        case 'wind_speed_10m':
-          return `${value} km/h`;
-        case 'cloud_cover':
-        case 'moon_illumination':
-          return `${value} %`;
+        case 'temperature_c':
+        case 'feels_like_c':
+          return `${value} C`;
+        case 'wind_m_s':
+        case 'gusts_m_s':
+          return `${value} m/s`;
+        case 'visibility_m':
         case 'distance_meters':
           return `${value} m`;
+        case 'precipitation_mm':
+          return `${value} mm`;
+        case 'confidence':
+          return `${Math.round(value * 100)} %`;
+        case 'precipitation_probability':
+        case 'thunder_probability':
+        case 'moon_illumination':
+          return `${value} %`;
         default:
           return `${value}`;
       }
@@ -348,6 +369,10 @@ export class MapPage implements AfterViewInit, OnInit {
     }
 
     return true;
+  }
+
+  weatherForecastEntries(forecast: WeatherForecast): [string, unknown][] {
+    return Object.entries(forecast).filter(([, value]) => this.hasDisplayValue(value));
   }
 
   private formatObjectValue(value: object): string {
