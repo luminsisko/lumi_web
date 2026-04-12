@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { MapPage } from './pages/map-page/map-page';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [MapPage],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })

@@ -35,6 +35,7 @@ describe('LumiApi', () => {
 
     request.flush({
       region_id: '87089969bffffff',
+      source: 'weather_forecast',
       now: {
         forecast_for: '2026-04-12T12:00:00',
         condition: 'rain'
@@ -57,6 +58,7 @@ describe('LumiApi', () => {
 
     request.flush({
       region_id: '87089969bffffff',
+      source: 'weather_forecast',
       now: {
         forecast_for: '2026-04-12T12:00:00',
         condition: 'rain',
@@ -95,6 +97,7 @@ describe('LumiApi', () => {
 
     expect(actual).toEqual({
       region_id: '87089969bffffff',
+      source: 'weather_forecast',
       now: {
         forecast_for: '2026-04-12T12:00:00',
         condition: 'rain',

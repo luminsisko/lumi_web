@@ -18,6 +18,7 @@ import {
 export class MapPage implements AfterViewInit, OnInit {
   private readonly fieldLabels: Record<string, string> = {
     region_id: 'Weather Region',
+    source: 'Weather Source',
     now: 'Now',
     plus_1_hour: 'In 1 Hour',
     forecast_for: 'Forecast Time',

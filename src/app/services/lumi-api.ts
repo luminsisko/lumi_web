@@ -63,12 +63,14 @@ export interface WeatherForecast extends Record<string, unknown> {
 
 export interface WeatherResponse extends Record<string, unknown> {
   region_id: string | null;
+  source: string | null;
   now: WeatherForecast;
   plus_1_hour: WeatherForecast;
 }
 
 interface WeatherApiResponse extends Record<string, unknown> {
   region_id?: string | null;
+  source?: string | null;
   now?: Record<string, unknown> | null;
   plus_1_hour?: Record<string, unknown> | null;
 }
@@ -199,6 +201,7 @@ export class LumiApi {
     return {
       ...response,
       region_id: response.region_id ?? null,
+      source: typeof response.source === 'string' ? response.source : null,
       now: this.normalizeWeatherForecast(response.now),
       plus_1_hour: this.normalizeWeatherForecast(response.plus_1_hour)
     };
