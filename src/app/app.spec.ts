@@ -17,12 +17,10 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render top-level mode switch', async () => {
+  it('should render the root router outlet shell', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Mode Switch');
-    expect(compiled.textContent).toContain('Client');
-    expect(compiled.textContent).toContain('Admin');
+    expect(compiled.querySelector('router-outlet')).toBeTruthy();
   });
 });

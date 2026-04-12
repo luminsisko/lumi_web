@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { map, Observable, timeout } from 'rxjs';
 
 export interface WalkRequest {
   area: string;
@@ -145,6 +145,8 @@ interface LocalNearbyPlacesApiResponse {
 export class LumiApi {
   private http = inject(HttpClient);
   private baseUrl = '/api';
+  private weatherRequestTimeoutMs = 90000;
+  private astronomyRequestTimeoutMs = 15000;
 
   getHealth(): Observable<unknown> {
     return this.http.get(`${this.baseUrl}/health`);
@@ -164,7 +166,10 @@ export class LumiApi {
 
     return this.http
       .get<WeatherApiResponse>(`${this.baseUrl}/weather`, { params })
-      .pipe(map((response) => this.normalizeWeather(response)));
+      .pipe(
+        timeout(this.weatherRequestTimeoutMs),
+        map((response) => this.normalizeWeather(response))
+      );
   }
 
   getAstronomy(
@@ -180,7 +185,9 @@ export class LumiApi {
       }
     });
 
-    return this.http.get<AstronomyResponse>(`${this.baseUrl}/astronomy`, { params });
+    return this.http
+      .get<AstronomyResponse>(`${this.baseUrl}/astronomy`, { params })
+      .pipe(timeout(this.astronomyRequestTimeoutMs));
   }
 
   getNearbyPlaces(

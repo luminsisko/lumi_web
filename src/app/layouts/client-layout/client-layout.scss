@@ -1,0 +1,52 @@
+.client-shell {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f6f8fb 0%, #eef3f7 100%);
+}
+
+.topbar {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.topbar h1 {
+  margin: 4px 0 0;
+  font-size: 1.75rem;
+}
+
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  color: #5f6c7b;
+}
+
+.mode-switch {
+  display: inline-flex;
+  padding: 4px;
+  border-radius: 999px;
+  background: #dfe7ee;
+  gap: 4px;
+}
+
+.mode-switch a {
+  padding: 10px 18px;
+  border-radius: 999px;
+  color: #223041;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.mode-switch a.active {
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(34, 48, 65, 0.12);
+}
+
+.client-content {
+  padding-bottom: 24px;
+}

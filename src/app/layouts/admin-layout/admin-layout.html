@@ -1,0 +1,34 @@
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <div>
+      <p class="eyebrow">Lumi</p>
+      <h1>Admin Mode</h1>
+    </div>
+
+    <nav class="mode-switch" aria-label="Application mode">
+      <a routerLink="/client" routerLinkActive="active">Client</a>
+      <a
+        routerLink="/admin/dashboard"
+        routerLinkActive="active"
+      >
+        Admin
+      </a>
+    </nav>
+
+    <nav class="admin-nav" aria-label="Admin sections">
+      @for (section of sections; track section.path) {
+        <a
+          [routerLink]="['/admin', section.path]"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          {{ section.label }}
+        </a>
+      }
+    </nav>
+  </aside>
+
+  <main class="admin-main">
+    <router-outlet></router-outlet>
+  </main>
+</div>

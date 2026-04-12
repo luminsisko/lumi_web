@@ -184,10 +184,18 @@ export class MapPage implements AfterViewInit, OnInit {
     this.loadLocalNearbyPlaces(this.selectedLat, this.selectedLng);
   }
 
+  retryWeather(): void {
+    if (this.selectedLat == null || this.selectedLng == null) {
+      return;
+    }
+
+    this.loadWeather(this.selectedLat, this.selectedLng);
+  }
+
   private loadWeather(lat: number, lng: number): void {
     const loadToken = ++this.weatherLoadToken;
 
-    this.weatherStatus = 'Loading weather and astronomy...';
+    this.weatherStatus = 'Loading weather and astronomy... weather may take up to 90 seconds on first refresh';
     this.weather = null;
     this.astronomy = null;
     this.weatherLoaded = false;
@@ -195,12 +203,20 @@ export class MapPage implements AfterViewInit, OnInit {
     this.weatherErrorMessage = null;
     this.astronomyErrorMessage = null;
 
+    console.log('Starting GET /api/weather', {
+      lat,
+      lon: lng,
+      request: `/api/weather?lat=${lat}&lon=${lng}`,
+      loadToken
+    });
+
     this.lumiApi.getWeather(lat, lng).subscribe({
       next: (response) => {
         if (loadToken !== this.weatherLoadToken) {
           return;
         }
 
+        console.log('GET /api/weather returned', response);
         this.weather = response;
         this.weatherLoaded = true;
         this.updateWeatherStatus();
