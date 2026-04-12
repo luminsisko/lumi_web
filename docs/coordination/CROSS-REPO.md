@@ -10,6 +10,7 @@ Web UI owns browser rendering, forms, and navigation. It does not own business r
 - locale and timezone handling
 - idempotency or retry behavior for writes
 - file upload or media handling if present
+- `GET /api/weather-regions` response shape for region geometry or bounding boxes
 
 ## Client matrix
 | Capability | Backend | Web | Mobile | Embedded |
@@ -22,3 +23,6 @@ Web UI owns browser rendering, forms, and navigation. It does not own business r
 
 ## Repository-specific note
 Web UI owns browser rendering, forms, and navigation. It does not own business rules, final authorization checks, or canonical error taxonomy.
+
+## Current contract note
+The web client now expects `GET /api/weather-regions` to provide `regions`, where each region uses `region_id`, `area_slug`, `center_lat`, `center_lon`, and `boundary.coordinates[0]` with coordinates in `[lon, lat]` order.

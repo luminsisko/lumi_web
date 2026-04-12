@@ -17,6 +17,7 @@ import {
   styleUrl: './map-page.scss'
 })
 export class MapPage implements AfterViewInit, OnInit {
+  private readonly helsinkiCenter: L.LatLngExpression = [60.1699, 24.9384];
   private readonly fieldLabels: Record<string, string> = {
     region_id: 'Weather Region',
     source: 'Weather Source',
@@ -85,7 +86,7 @@ export class MapPage implements AfterViewInit, OnInit {
   private weatherErrorMessage: string | null = null;
   private astronomyErrorMessage: string | null = null;
 
-  selectedCoordinates = 'Nothing selected yet';
+  selectedCoordinates = 'Helsinki center: 60.169900, 24.938400';
   backendStatus = 'Backend not checked yet';
   nearbyPlacesStatus = 'Nearby places not loaded yet';
   nearbyPlaces: NearbyPlace[] = [];
@@ -124,7 +125,7 @@ export class MapPage implements AfterViewInit, OnInit {
   }
 
   private initMap(): void {
-    this.map = L.map('map').setView([60.1699, 24.9384], 13);
+    this.map = L.map('map').setView(this.helsinkiCenter, 13);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'

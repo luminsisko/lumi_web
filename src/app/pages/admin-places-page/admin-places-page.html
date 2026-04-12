@@ -3,105 +3,37 @@
     <div>
       <p class="admin-kicker">Admin</p>
       <h2>Places</h2>
-      <p class="admin-copy">Create local places manually for the admin dataset.</p>
+      <p class="admin-copy">Browse Helsinki weather regions and choose where a new place belongs.</p>
     </div>
 
     <button type="button" class="primary-button" (click)="openForm()">Add Place</button>
   </div>
 
-  @if (saveStatus) {
-    <div class="status-card">{{ saveStatus }}</div>
-  }
+  <div class="status-card">
+    <strong>Weather regions status:</strong>
+    <span>{{ weatherRegionsStatus }}</span>
+  </div>
 
-  @if (createdPlace) {
-    <div class="result-card">
-      <h3>Last created place</h3>
-      <p><strong>Name:</strong> {{ createdPlace.name }}</p>
-      <p><strong>ID:</strong> {{ createdPlace.id }}</p>
-      <p><strong>City:</strong> {{ createdPlace.city }}</p>
-      <p><strong>Area:</strong> {{ createdPlace.area }}</p>
+  <div class="map-card">
+    <div class="map-card-header">
+      <div>
+        <h3>Helsinki Regions Map</h3>
+        <p>Click the map to select the weather region at that location.</p>
+      </div>
     </div>
-  }
 
-  @if (showForm) {
-    <form class="place-form" (ngSubmit)="savePlace()">
-      <div class="form-grid">
-        <label>
-          <span>Name</span>
-          <input [(ngModel)]="form.name" name="name" required />
-        </label>
-        <label>
-          <span>City</span>
-          <input [(ngModel)]="form.city" name="city" required />
-        </label>
-        <label>
-          <span>Area</span>
-          <input [(ngModel)]="form.area" name="area" required />
-        </label>
-        <label>
-          <span>Category</span>
-          <input [(ngModel)]="form.category" name="category" required />
-        </label>
-        <label>
-          <span>Place Kind</span>
-          <input [(ngModel)]="form.place_kind" name="place_kind" required />
-        </label>
-        <label class="full-width">
-          <span>Description</span>
-          <textarea [(ngModel)]="form.description" name="description" rows="3" required></textarea>
-        </label>
-        <label>
-          <span>Latitude</span>
-          <input [(ngModel)]="form.latitude" name="latitude" type="number" step="any" required />
-        </label>
-        <label>
-          <span>Longitude</span>
-          <input [(ngModel)]="form.longitude" name="longitude" type="number" step="any" required />
-        </label>
-        <label class="full-width">
-          <span>Address</span>
-          <input [(ngModel)]="form.address" name="address" />
-        </label>
-        <label>
-          <span>Open Time</span>
-          <input [(ngModel)]="form.open_time" name="open_time" placeholder="08:00:00" />
-        </label>
-        <label>
-          <span>Close Time</span>
-          <input [(ngModel)]="form.close_time" name="close_time" placeholder="18:30:00" />
-        </label>
-        <label class="full-width">
-          <span>Mood Tags</span>
-          <input [(ngModel)]="form.mood_tags" name="mood_tags" placeholder="calm,cozy" />
-        </label>
-        <label class="full-width">
-          <span>Weather Tags</span>
-          <input [(ngModel)]="form.weather_tags" name="weather_tags" placeholder="rainy" />
-        </label>
-        <label class="full-width">
-          <span>Time Of Day Tags</span>
-          <input [(ngModel)]="form.time_of_day_tags" name="time_of_day_tags" placeholder="morning" />
-        </label>
-        <label class="full-width">
-          <span>Season Tags</span>
-          <input [(ngModel)]="form.season_tags" name="season_tags" placeholder="spring" />
-        </label>
-        <label class="full-width">
-          <span>Best Months</span>
-          <input [(ngModel)]="form.best_months" name="best_months" placeholder="4,5,6" />
-        </label>
-      </div>
+    <div id="admin-places-map" class="places-map" aria-label="Admin places map"></div>
+  </div>
 
-      <div class="form-actions">
-        <button type="submit" class="primary-button" [disabled]="isSaving">Save</button>
-        <button type="button" class="secondary-button" (click)="cancelForm()" [disabled]="isSaving">
-          Cancel
-        </button>
-      </div>
-    </form>
-  } @else {
-    <div class="empty-card">
-      <p>No place form open.</p>
+  @if (selectedWeatherRegion) {
+    <div class="region-card">
+      <h3>Selected Region</h3>
+
+      @for (entry of weatherRegionEntries(selectedWeatherRegion); track entry[0]) {
+        @if (hasDisplayValue(entry[1])) {
+          <p><strong>{{ formatFieldLabel(entry[0]) }}:</strong> {{ formatFieldValue(entry[0], entry[1]) }}</p>
+        }
+      }
     </div>
   }
 </section>

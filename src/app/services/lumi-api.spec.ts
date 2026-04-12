@@ -7,6 +7,7 @@ import {
   LocalNearbyPlace,
   LumiApi,
   NearbyPlace,
+  WeatherRegion,
   WeatherResponse
 } from './lumi-api';
 
@@ -377,5 +378,101 @@ describe('LumiApi', () => {
       'Invalid limit: 0'
     );
     httpTesting.expectNone('/api/places/local-nearby');
+  });
+
+  it('should request weather regions from the new endpoint', () => {
+    service.getWeatherRegions().subscribe();
+
+    const request = httpTesting.expectOne('/api/weather-regions');
+
+    expect(request.request.method).toBe('GET');
+
+    request.flush({ regions: [] });
+  });
+
+  it('should normalize weather regions from the latest endpoint contract', () => {
+    let actual: WeatherRegion[] = [];
+
+    service.getWeatherRegions().subscribe((response) => {
+      actual = response;
+    });
+
+    const request = httpTesting.expectOne('/api/weather-regions');
+
+    request.flush({
+      regions: [
+        {
+          region_id: 'helsinki-center',
+          area_slug: 'helsinki-central',
+          center_lat: 60.1699,
+          center_lon: 24.9384,
+          boundary: {
+            coordinates: [
+              [
+                [24.91, 60.16],
+                [24.96, 60.16],
+                [24.96, 60.19],
+                [24.91, 60.19],
+                [24.91, 60.16]
+              ]
+            ]
+          },
+        },
+        {
+          region_id: 'helsinki-coast',
+          area_slug: 'helsinki-coast',
+          center_lat: 60.155,
+          center_lon: 24.99,
+          boundary: {
+            coordinates: [
+              [
+                [24.97, 60.15],
+                [25.01, 60.15],
+                [25.01, 60.17],
+                [24.97, 60.17],
+                [24.97, 60.15]
+              ]
+            ]
+          }
+        }
+      ]
+    });
+
+    expect(actual).toEqual([
+      {
+        region_id: 'helsinki-center',
+        area_slug: 'helsinki-central',
+        center_lat: 60.1699,
+        center_lon: 24.9384,
+        boundary: {
+          coordinates: [
+            [
+              [24.91, 60.16],
+              [24.96, 60.16],
+              [24.96, 60.19],
+              [24.91, 60.19],
+              [24.91, 60.16]
+            ]
+          ]
+        }
+      },
+      {
+        region_id: 'helsinki-coast',
+        area_slug: 'helsinki-coast',
+        center_lat: 60.155,
+        center_lon: 24.99,
+        boundary: {
+          coordinates: [
+            [
+              [24.97, 60.15],
+              [25.01, 60.15],
+              [25.01, 60.17],
+              [24.97, 60.17],
+              [24.97, 60.15]
+            ]
+          ]
+        }
+      }
+    ]);
   });
 });

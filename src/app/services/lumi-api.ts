@@ -101,6 +101,16 @@ export interface LocalNearbyPlace {
   distance_meters: number | null;
 }
 
+export interface WeatherRegion {
+  region_id: string;
+  area_slug: string | null;
+  center_lat: number | null;
+  center_lon: number | null;
+  boundary: {
+    coordinates: number[][][];
+  } | null;
+}
+
 export type AstronomyResponse = Record<string, unknown>;
 
 export interface WeatherForecast extends Record<string, unknown> {
@@ -176,6 +186,22 @@ interface LocalNearbyPlaceApiItem {
 
 interface LocalNearbyPlacesApiResponse {
   places?: LocalNearbyPlaceApiItem[] | null;
+}
+
+interface WeatherRegionApiItem extends Record<string, unknown> {
+  region_id?: string | null;
+  area_slug?: string | null;
+  center_lat?: number | null;
+  center_lon?: number | null;
+  boundary?: {
+    coordinates?: unknown;
+  } | null;
+}
+
+interface WeatherRegionsApiResponse {
+  regions?: WeatherRegionApiItem[] | null;
+  items?: WeatherRegionApiItem[] | null;
+  weather_regions?: WeatherRegionApiItem[] | null;
 }
 
 @Injectable({
@@ -271,6 +297,12 @@ export class LumiApi {
     return this.http
       .get<LocalNearbyPlacesApiResponse>(`${this.baseUrl}/places/local-nearby`, { params })
       .pipe(map((response) => this.normalizeLocalNearbyPlaces(response)));
+  }
+
+  getWeatherRegions(): Observable<WeatherRegion[]> {
+    return this.http
+      .get<WeatherRegionApiItem[] | WeatherRegionsApiResponse>(`${this.baseUrl}/weather-regions`)
+      .pipe(map((response) => this.normalizeWeatherRegions(response)));
   }
 
   private parseCoordinate(value: number | string, label: 'lat' | 'lon'): string {
@@ -414,5 +446,65 @@ export class LumiApi {
       best_months: place.best_months ?? null,
       distance_meters: place.distance_meters ?? null
     }));
+  }
+
+  private normalizeWeatherRegions(
+    response: WeatherRegionApiItem[] | WeatherRegionsApiResponse
+  ): WeatherRegion[] {
+    const regions = Array.isArray(response)
+      ? response
+      : response.regions ?? response.items ?? response.weather_regions ?? [];
+
+    return regions
+      .map((region) => {
+        const regionId = this.readNullableString(region, 'region_id');
+
+        if (!regionId) {
+          return null;
+        }
+
+        return {
+          region_id: regionId,
+          area_slug: this.readNullableString(region, 'area_slug'),
+          center_lat: this.readNullableNumber(region, 'center_lat'),
+          center_lon: this.readNullableNumber(region, 'center_lon'),
+          boundary: this.normalizeWeatherRegionBoundary(region.boundary)
+        };
+      })
+      .filter((region): region is WeatherRegion => region !== null);
+  }
+
+  private normalizeWeatherRegionBoundary(
+    boundary: WeatherRegionApiItem['boundary']
+  ): WeatherRegion['boundary'] {
+    const coordinates = boundary?.coordinates;
+
+    if (!Array.isArray(coordinates)) {
+      return null;
+    }
+
+    const normalizedCoordinates = coordinates
+      .map((ring) => {
+        if (!Array.isArray(ring)) {
+          return [];
+        }
+
+        return ring.filter(
+          (point): point is number[] =>
+            Array.isArray(point) &&
+            point.length >= 2 &&
+            typeof point[0] === 'number' &&
+            typeof point[1] === 'number'
+        );
+      })
+      .filter((ring) => ring.length > 0);
+
+    if (normalizedCoordinates.length === 0) {
+      return null;
+    }
+
+    return {
+      coordinates: normalizedCoordinates
+    };
   }
 }
