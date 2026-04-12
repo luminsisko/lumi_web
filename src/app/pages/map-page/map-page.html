@@ -24,6 +24,11 @@
     <span>{{ nearbyPlacesStatus }}</span>
   </div>
 
+  <div class="coords">
+    <strong>Local nearby places status:</strong>
+    <span>{{ localNearbyPlacesStatus }}</span>
+  </div>
+
   <div class="coords controls">
     <label for="nearby-radius"><strong>Nearby places radius (meters):</strong></label>
     <input
@@ -51,6 +56,8 @@
       <h2>Location context</h2>
 
       @if (weather) {
+        <p><strong>Displayed Time Zone:</strong> {{ clientTimeZone }}</p>
+
         @if (hasDisplayValue(weather.region_id)) {
           <p><strong>{{ formatFieldLabel('region_id') }}:</strong> {{ formatFieldValue('region_id', weather.region_id) }}</p>
         }
@@ -124,6 +131,73 @@
         }
         @if (hasDisplayValue(place.address)) {
           <p><strong>{{ formatFieldLabel('address') }}:</strong> {{ formatFieldValue('address', place.address) }}</p>
+        }
+        @if (hasDisplayValue(place.distance_meters)) {
+          <p><strong>{{ formatFieldLabel('distance_meters') }}:</strong> {{ formatFieldValue('distance_meters', place.distance_meters) }}</p>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="recommendations">
+    <h2>Local nearby places</h2>
+
+    @if (localNearbyPlaces.length === 0) {
+      <p>No local nearby places found for this point.</p>
+    }
+
+    @for (place of localNearbyPlaces; track place.id ?? place.name) {
+      <div class="recommendation-card">
+        @if (hasDisplayValue(place.name)) {
+          <h3>{{ place.name }}</h3>
+        }
+        @if (hasDisplayValue(place.id)) {
+          <p><strong>ID:</strong> {{ formatFieldValue('id', place.id) }}</p>
+        }
+        @if (hasDisplayValue(place.city)) {
+          <p><strong>{{ formatFieldLabel('city') }}:</strong> {{ formatFieldValue('city', place.city) }}</p>
+        }
+        @if (hasDisplayValue(place.area)) {
+          <p><strong>{{ formatFieldLabel('area') }}:</strong> {{ formatFieldValue('area', place.area) }}</p>
+        }
+        @if (hasDisplayValue(place.category)) {
+          <p><strong>{{ formatFieldLabel('category') }}:</strong> {{ formatFieldValue('category', place.category) }}</p>
+        }
+        @if (hasDisplayValue(place.place_kind)) {
+          <p><strong>{{ formatFieldLabel('place_kind') }}:</strong> {{ formatFieldValue('place_kind', place.place_kind) }}</p>
+        }
+        @if (hasDisplayValue(place.description)) {
+          <p><strong>{{ formatFieldLabel('description') }}:</strong> {{ formatFieldValue('description', place.description) }}</p>
+        }
+        @if (hasDisplayValue(place.latitude)) {
+          <p><strong>{{ formatFieldLabel('latitude') }}:</strong> {{ formatFieldValue('latitude', place.latitude) }}</p>
+        }
+        @if (hasDisplayValue(place.longitude)) {
+          <p><strong>{{ formatFieldLabel('longitude') }}:</strong> {{ formatFieldValue('longitude', place.longitude) }}</p>
+        }
+        @if (hasDisplayValue(place.address)) {
+          <p><strong>{{ formatFieldLabel('address') }}:</strong> {{ formatFieldValue('address', place.address) }}</p>
+        }
+        @if (hasDisplayValue(place.open_time)) {
+          <p><strong>{{ formatFieldLabel('open_time') }}:</strong> {{ formatFieldValue('open_time', place.open_time) }}</p>
+        }
+        @if (hasDisplayValue(place.close_time)) {
+          <p><strong>{{ formatFieldLabel('close_time') }}:</strong> {{ formatFieldValue('close_time', place.close_time) }}</p>
+        }
+        @if (hasDisplayValue(place.mood_tags)) {
+          <p><strong>{{ formatFieldLabel('mood_tags') }}:</strong> {{ formatFieldValue('mood_tags', place.mood_tags) }}</p>
+        }
+        @if (hasDisplayValue(place.weather_tags)) {
+          <p><strong>{{ formatFieldLabel('weather_tags') }}:</strong> {{ formatFieldValue('weather_tags', place.weather_tags) }}</p>
+        }
+        @if (hasDisplayValue(place.time_of_day_tags)) {
+          <p><strong>{{ formatFieldLabel('time_of_day_tags') }}:</strong> {{ formatFieldValue('time_of_day_tags', place.time_of_day_tags) }}</p>
+        }
+        @if (hasDisplayValue(place.season_tags)) {
+          <p><strong>{{ formatFieldLabel('season_tags') }}:</strong> {{ formatFieldValue('season_tags', place.season_tags) }}</p>
+        }
+        @if (hasDisplayValue(place.best_months)) {
+          <p><strong>{{ formatFieldLabel('best_months') }}:</strong> {{ formatFieldValue('best_months', place.best_months) }}</p>
         }
         @if (hasDisplayValue(place.distance_meters)) {
           <p><strong>{{ formatFieldLabel('distance_meters') }}:</strong> {{ formatFieldValue('distance_meters', place.distance_meters) }}</p>

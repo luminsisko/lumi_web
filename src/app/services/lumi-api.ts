@@ -41,6 +41,27 @@ export interface NearbyPlace {
   distance_meters: number | null;
 }
 
+export interface LocalNearbyPlace {
+  id: string | null;
+  name: string;
+  city: string | null;
+  area: string | null;
+  category: string | null;
+  place_kind: string | null;
+  description: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  address: string | null;
+  open_time: string | null;
+  close_time: string | null;
+  mood_tags: string[] | null;
+  weather_tags: string[] | null;
+  time_of_day_tags: string[] | null;
+  season_tags: string[] | null;
+  best_months: string[] | null;
+  distance_meters: number | null;
+}
+
 export type AstronomyResponse = Record<string, unknown>;
 
 export interface WeatherForecast extends Record<string, unknown> {
@@ -91,6 +112,31 @@ interface NearbyPlacesApiResponse {
   places?: NearbyPlaceApiItem[] | null;
   results?: NearbyPlaceApiItem[] | null;
   items?: NearbyPlaceApiItem[] | null;
+}
+
+interface LocalNearbyPlaceApiItem {
+  id?: string | null;
+  name?: string | null;
+  city?: string | null;
+  area?: string | null;
+  category?: string | null;
+  place_kind?: string | null;
+  description?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  address?: string | null;
+  open_time?: string | null;
+  close_time?: string | null;
+  mood_tags?: string[] | null;
+  weather_tags?: string[] | null;
+  time_of_day_tags?: string[] | null;
+  season_tags?: string[] | null;
+  best_months?: string[] | null;
+  distance_meters?: number | null;
+}
+
+interface LocalNearbyPlacesApiResponse {
+  places?: LocalNearbyPlaceApiItem[] | null;
 }
 
 @Injectable({
@@ -155,6 +201,26 @@ export class LumiApi {
     return this.http
       .get<NearbyPlaceApiItem[] | NearbyPlacesApiResponse>(`${this.baseUrl}/places/nearby`, { params })
       .pipe(map((response) => this.normalizeNearbyPlaces(response)));
+  }
+
+  getLocalNearbyPlaces(
+    lat: number | string,
+    lon: number | string,
+    radius: number | string = 250,
+    limit: number | string = 15
+  ): Observable<LocalNearbyPlace[]> {
+    const params = new HttpParams({
+      fromObject: {
+        lat: this.parseCoordinate(lat, 'lat'),
+        lon: this.parseCoordinate(lon, 'lon'),
+        radius: this.parsePositiveNumber(radius, 'radius'),
+        limit: this.parsePositiveInteger(limit, 'limit')
+      }
+    });
+
+    return this.http
+      .get<LocalNearbyPlacesApiResponse>(`${this.baseUrl}/places/local-nearby`, { params })
+      .pipe(map((response) => this.normalizeLocalNearbyPlaces(response)));
   }
 
   private parseCoordinate(value: number | string, label: 'lat' | 'lon'): string {
@@ -271,6 +337,31 @@ export class LumiApi {
       category: place.category ?? null,
       subcategory: place.subcategory ?? null,
       address: place.address ?? null,
+      distance_meters: place.distance_meters ?? null
+    }));
+  }
+
+  private normalizeLocalNearbyPlaces(response: LocalNearbyPlacesApiResponse): LocalNearbyPlace[] {
+    const places = response.places ?? [];
+
+    return places.map((place) => ({
+      id: place.id ?? null,
+      name: place.name ?? 'Unnamed place',
+      city: place.city ?? null,
+      area: place.area ?? null,
+      category: place.category ?? null,
+      place_kind: place.place_kind ?? null,
+      description: place.description ?? null,
+      latitude: place.latitude ?? null,
+      longitude: place.longitude ?? null,
+      address: place.address ?? null,
+      open_time: place.open_time ?? null,
+      close_time: place.close_time ?? null,
+      mood_tags: place.mood_tags ?? null,
+      weather_tags: place.weather_tags ?? null,
+      time_of_day_tags: place.time_of_day_tags ?? null,
+      season_tags: place.season_tags ?? null,
+      best_months: place.best_months ?? null,
       distance_meters: place.distance_meters ?? null
     }));
   }

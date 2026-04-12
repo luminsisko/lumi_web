@@ -3,6 +3,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, NgZone, OnInit, inject } f
 import * as L from 'leaflet';
 import {
   AstronomyResponse,
+  LocalNearbyPlace,
   LumiApi,
   NearbyPlace,
   WeatherForecast,
@@ -43,6 +44,17 @@ export class MapPage implements AfterViewInit, OnInit {
     latitude: 'Latitude',
     longitude: 'Longitude',
     category: 'Category',
+    city: 'City',
+    area: 'Area',
+    place_kind: 'Place Kind',
+    description: 'Description',
+    open_time: 'Opens',
+    close_time: 'Closes',
+    mood_tags: 'Mood Tags',
+    weather_tags: 'Weather Tags',
+    time_of_day_tags: 'Time Of Day Tags',
+    season_tags: 'Season Tags',
+    best_months: 'Best Months',
     subcategory: 'Subcategory',
     address: 'Address',
     distance_meters: 'Distance',
@@ -67,6 +79,7 @@ export class MapPage implements AfterViewInit, OnInit {
   private selectedLng: number | null = null;
   private weatherLoadToken = 0;
   private nearbyPlacesLoadToken = 0;
+  private localNearbyPlacesLoadToken = 0;
   private weatherLoaded = false;
   private astronomyLoaded = false;
   private weatherErrorMessage: string | null = null;
@@ -76,9 +89,12 @@ export class MapPage implements AfterViewInit, OnInit {
   backendStatus = 'Backend not checked yet';
   nearbyPlacesStatus = 'Nearby places not loaded yet';
   nearbyPlaces: NearbyPlace[] = [];
+  localNearbyPlacesStatus = 'Local nearby places not loaded yet';
+  localNearbyPlaces: LocalNearbyPlace[] = [];
   nearbyRadius = 250;
   nearbyLimit = 20;
   isLoading = false;
+  clientTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
 
   weather: WeatherResponse | null = null;
   astronomy: AstronomyResponse | null = null;
@@ -131,6 +147,7 @@ export class MapPage implements AfterViewInit, OnInit {
 
         this.loadWeather(lat, lng);
         this.loadNearbyPlaces(lat, lng);
+        this.loadLocalNearbyPlaces(lat, lng);
         this.cdr.detectChanges();
       });
     });
@@ -164,6 +181,7 @@ export class MapPage implements AfterViewInit, OnInit {
     }
 
     this.loadNearbyPlaces(this.selectedLat, this.selectedLng);
+    this.loadLocalNearbyPlaces(this.selectedLat, this.selectedLng);
   }
 
   private loadWeather(lat: number, lng: number): void {
@@ -253,6 +271,37 @@ export class MapPage implements AfterViewInit, OnInit {
         console.error('Nearby places request failed:', error);
         this.nearbyPlacesStatus = `Nearby places error: ${error.message}`;
         this.isLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  private loadLocalNearbyPlaces(lat: number, lng: number): void {
+    const loadToken = ++this.localNearbyPlacesLoadToken;
+
+    this.localNearbyPlacesStatus = 'Loading local nearby places...';
+    this.localNearbyPlaces = [];
+
+    this.lumiApi.getLocalNearbyPlaces(lat, lng, this.nearbyRadius, this.nearbyLimit).subscribe({
+      next: (response) => {
+        if (loadToken !== this.localNearbyPlacesLoadToken) {
+          return;
+        }
+
+        this.localNearbyPlaces = response;
+        this.localNearbyPlacesStatus =
+          response.length > 0
+            ? `Loaded ${response.length} local nearby places`
+            : 'No local nearby places found';
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        if (loadToken !== this.localNearbyPlacesLoadToken) {
+          return;
+        }
+
+        console.error('Local nearby places request failed:', error);
+        this.localNearbyPlacesStatus = `Local nearby places error: ${error.message}`;
         this.cdr.detectChanges();
       }
     });
@@ -413,7 +462,8 @@ export class MapPage implements AfterViewInit, OnInit {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      timeZone: this.clientTimeZone
     }).format(parsed);
   }
 

@@ -2,7 +2,13 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
-import { AstronomyResponse, LumiApi, NearbyPlace, WeatherResponse } from './lumi-api';
+import {
+  AstronomyResponse,
+  LocalNearbyPlace,
+  LumiApi,
+  NearbyPlace,
+  WeatherResponse
+} from './lumi-api';
 
 describe('LumiApi', () => {
   let service: LumiApi;
@@ -273,5 +279,103 @@ describe('LumiApi', () => {
       'Invalid limit: 0'
     );
     httpTesting.expectNone('/api/places/nearby');
+  });
+
+  it('should send normalized query params for local nearby places', () => {
+    service.getLocalNearbyPlaces('60.1699', '24.9384', '500', '10').subscribe();
+
+    const request = httpTesting.expectOne((req) => req.url === '/api/places/local-nearby');
+
+    expect(request.request.method).toBe('GET');
+    expect(request.request.params.get('lat')).toBe('60.1699');
+    expect(request.request.params.get('lon')).toBe('24.9384');
+    expect(request.request.params.get('radius')).toBe('500');
+    expect(request.request.params.get('limit')).toBe('10');
+
+    request.flush({ places: [] });
+  });
+
+  it('should use the default local nearby places radius and limit when none is provided', () => {
+    service.getLocalNearbyPlaces(60.1699, 24.9384).subscribe();
+
+    const request = httpTesting.expectOne(
+      '/api/places/local-nearby?lat=60.1699&lon=24.9384&radius=250&limit=15'
+    );
+
+    request.flush({ places: [] });
+  });
+
+  it('should normalize local nearby places responses into the UI model', () => {
+    let actual: LocalNearbyPlace[] = [];
+
+    service.getLocalNearbyPlaces(60.1699, 24.9384).subscribe((response) => {
+      actual = response;
+    });
+
+    const request = httpTesting.expectOne(
+      '/api/places/local-nearby?lat=60.1699&lon=24.9384&radius=250&limit=15'
+    );
+
+    request.flush({
+      places: [
+        {
+          id: 'place-near',
+          name: 'Cafe Near',
+          city: 'Helsinki',
+          area: 'Kamppi',
+          category: 'cafe',
+          place_kind: 'discovery',
+          description: 'Close place',
+          latitude: 60.1699,
+          longitude: 24.9384,
+          address: 'Near street 1',
+          open_time: '08:00:00',
+          close_time: '20:00:00',
+          mood_tags: ['calm'],
+          weather_tags: ['dry'],
+          time_of_day_tags: ['day'],
+          season_tags: ['spring'],
+          best_months: ['april'],
+          distance_meters: 0
+        }
+      ]
+    });
+
+    expect(actual).toEqual([
+      {
+        id: 'place-near',
+        name: 'Cafe Near',
+        city: 'Helsinki',
+        area: 'Kamppi',
+        category: 'cafe',
+        place_kind: 'discovery',
+        description: 'Close place',
+        latitude: 60.1699,
+        longitude: 24.9384,
+        address: 'Near street 1',
+        open_time: '08:00:00',
+        close_time: '20:00:00',
+        mood_tags: ['calm'],
+        weather_tags: ['dry'],
+        time_of_day_tags: ['day'],
+        season_tags: ['spring'],
+        best_months: ['april'],
+        distance_meters: 0
+      }
+    ]);
+  });
+
+  it('should reject invalid local nearby place coordinates before the request is sent', () => {
+    expect(() => service.getLocalNearbyPlaces('north', '24.9384')).toThrowError(
+      'Invalid lat coordinate: north'
+    );
+    httpTesting.expectNone('/api/places/local-nearby');
+  });
+
+  it('should reject invalid local nearby place limit before the request is sent', () => {
+    expect(() => service.getLocalNearbyPlaces('60.1699', '24.9384', '250', '0')).toThrowError(
+      'Invalid limit: 0'
+    );
+    httpTesting.expectNone('/api/places/local-nearby');
   });
 });
