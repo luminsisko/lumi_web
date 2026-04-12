@@ -1,60 +1,90 @@
 import { Routes } from '@angular/router';
-import { ClientLayout } from './layouts/client-layout/client-layout';
-import { AdminLayout } from './layouts/admin-layout/admin-layout';
-import { MapPage } from './pages/map-page/map-page';
-import { AdminPlaceholderPage } from './pages/admin-placeholder-page/admin-placeholder-page';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'client' },
   {
     path: 'client',
-    component: ClientLayout,
-    children: [{ path: '', component: MapPage, title: 'Lumi Client' }]
+    loadComponent: () =>
+      import('./layouts/client-layout/client-layout').then(
+        (module) => module.ClientLayout
+      ),
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./pages/map-page/map-page').then((module) => module.MapPage),
+        title: 'Lumi Client'
+      }
+    ]
   },
   {
     path: 'admin',
-    component: AdminLayout,
+    loadComponent: () =>
+      import('./layouts/admin-layout/admin-layout').then(
+        (module) => module.AdminLayout
+      ),
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       {
         path: 'dashboard',
-        component: AdminPlaceholderPage,
+        loadComponent: () =>
+          import('./pages/admin-placeholder-page/admin-placeholder-page').then(
+            (module) => module.AdminPlaceholderPage
+          ),
         title: 'Admin Dashboard',
         data: { title: 'Dashboard' }
       },
       {
         path: 'places',
-        component: AdminPlaceholderPage,
+        loadComponent: () =>
+          import('./pages/admin-places-page/admin-places-page').then(
+            (module) => module.AdminPlacesPage
+          ),
         title: 'Admin Places',
         data: { title: 'Places' }
       },
       {
         path: 'weather-regions',
-        component: AdminPlaceholderPage,
+        loadComponent: () =>
+          import('./pages/admin-placeholder-page/admin-placeholder-page').then(
+            (module) => module.AdminPlaceholderPage
+          ),
         title: 'Admin Weather Regions',
         data: { title: 'Weather Regions' }
       },
       {
         path: 'sources',
-        component: AdminPlaceholderPage,
+        loadComponent: () =>
+          import('./pages/admin-placeholder-page/admin-placeholder-page').then(
+            (module) => module.AdminPlaceholderPage
+          ),
         title: 'Admin Sources',
         data: { title: 'Sources' }
       },
       {
         path: 'jobs',
-        component: AdminPlaceholderPage,
+        loadComponent: () =>
+          import('./pages/admin-placeholder-page/admin-placeholder-page').then(
+            (module) => module.AdminPlaceholderPage
+          ),
         title: 'Admin Jobs',
         data: { title: 'Jobs' }
       },
       {
         path: 'logs',
-        component: AdminPlaceholderPage,
+        loadComponent: () =>
+          import('./pages/admin-placeholder-page/admin-placeholder-page').then(
+            (module) => module.AdminPlaceholderPage
+          ),
         title: 'Admin Logs',
         data: { title: 'Logs' }
       },
       {
         path: 'settings',
-        component: AdminPlaceholderPage,
+        loadComponent: () =>
+          import('./pages/admin-placeholder-page/admin-placeholder-page').then(
+            (module) => module.AdminPlaceholderPage
+          ),
         title: 'Admin Settings',
         data: { title: 'Settings' }
       }

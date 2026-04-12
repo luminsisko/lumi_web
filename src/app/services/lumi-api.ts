@@ -29,6 +29,45 @@ export interface WalkResponse {
   suggestions: Suggestion[];
 }
 
+export interface PlaceCreateRequest {
+  name: string;
+  city: string;
+  area: string;
+  category: string;
+  place_kind: string;
+  description: string;
+  latitude: number;
+  longitude: number;
+  address: string | null;
+  open_time: string | null;
+  close_time: string | null;
+  mood_tags: string | null;
+  weather_tags: string | null;
+  time_of_day_tags: string | null;
+  season_tags: string | null;
+  best_months: string | null;
+}
+
+export interface PlaceRecord {
+  id: string | null;
+  name: string;
+  city: string | null;
+  area: string | null;
+  category: string | null;
+  place_kind: string | null;
+  description: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  address: string | null;
+  open_time: string | null;
+  close_time: string | null;
+  mood_tags: string | null;
+  weather_tags: string | null;
+  time_of_day_tags: string | null;
+  season_tags: string | null;
+  best_months: string | null;
+}
+
 export interface NearbyPlace {
   osm_id: number | null;
   osm_type: string | null;
@@ -150,6 +189,10 @@ export class LumiApi {
 
   getHealth(): Observable<unknown> {
     return this.http.get(`${this.baseUrl}/health`);
+  }
+
+  createPlace(payload: PlaceCreateRequest): Observable<PlaceRecord> {
+    return this.http.post<PlaceRecord>(`${this.baseUrl}/places`, payload);
   }
 
   walk(request: WalkRequest): Observable<WalkResponse> {

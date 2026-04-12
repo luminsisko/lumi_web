@@ -1,0 +1,114 @@
+.admin-places {
+  padding: 24px;
+}
+
+.admin-places-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.admin-places-header h2 {
+  margin: 6px 0 8px;
+}
+
+.admin-kicker {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  color: #728396;
+}
+
+.admin-copy {
+  margin: 0;
+  color: #526172;
+}
+
+.primary-button,
+.secondary-button {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid #cbd5df;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primary-button {
+  background: #223041;
+  color: #ffffff;
+  border-color: #223041;
+}
+
+.secondary-button {
+  background: #ffffff;
+  color: #223041;
+}
+
+.status-card,
+.result-card,
+.empty-card,
+.place-form {
+  max-width: 900px;
+  margin-bottom: 16px;
+  padding: 20px;
+  border: 1px solid #d9e0e7;
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.result-card h3 {
+  margin-top: 0;
+}
+
+.result-card p {
+  margin: 0 0 8px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.form-grid label {
+  display: grid;
+  gap: 8px;
+}
+
+.form-grid span {
+  font-weight: 600;
+  color: #314152;
+}
+
+.form-grid input,
+.form-grid textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cbd5df;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #223041;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+@media (max-width: 800px) {
+  .admin-places-header {
+    flex-direction: column;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}

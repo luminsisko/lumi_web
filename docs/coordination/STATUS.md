@@ -2,21 +2,22 @@
 
 ## Current state
 - Branch: main
-- Focus: Align Angular data layer and screens with backend DTOs and error model.
-- Last updated: 2026-04-11
-- Updated by: bootstrap template
-- Overall status: yellow
+- Focus: Keep Angular route/layout structure maintainable while reducing production bundle size.
+- Last updated: 2026-04-12
+- Updated by: Codex
+- Overall status: green
 
 ## In progress
-- BOOTSTRAP-001: tailor repository docs to chosen stack
-- BOOTSTRAP-002: confirm build, lint, and test commands in real repository
+- WEB-UI: continue replacing placeholder admin screens with real workflows
+- WEB-UI: monitor remaining build optimization warning from Leaflet CommonJS packaging
 
 ## Blockers
-- real project module names and CI commands are still placeholders until copied into the actual repository
+- none for the current bundle-size work
 
 ## Recently completed
-- created initial AI coordination structure
-- documented repository-specific architecture assumptions
+- split client and admin routes to lazy-loaded layout/page chunks
+- reduced Angular production initial bundle from budget warning state to 304.22 kB
+- verified production build after route splitting
 
 ## Waiting on
-- alignment with other repositories on concrete contracts
+- backend and shared-client contract evolution for future admin pages
