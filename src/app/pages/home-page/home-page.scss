@@ -13,15 +13,7 @@
 
 .hero {
   text-align: center;
-  margin-bottom: 40px;
-}
-
-.hero h1 {
-  margin: 0 0 12px;
-  font-size: clamp(2.4rem, 4vw, 3.8rem);
-  line-height: 1.05;
-  color: #15202b;
-  font-weight: 800;
+  margin-bottom: 32px;
 }
 
 .hero p {
@@ -39,10 +31,16 @@
 }
 
 .map-card,
-.preferences-card {
+.preferences-card,
+.recommendations-card {
   background: rgba(255, 255, 255, 0.94);
   border-radius: 28px;
   box-shadow: 0 20px 45px rgba(38, 52, 74, 0.08);
+}
+
+.map-panel {
+  display: grid;
+  gap: 20px;
 }
 
 .map-card {
@@ -56,94 +54,13 @@
   overflow: hidden;
   border: 2px solid #6b8dff;
   border-radius: 22px;
-  background:
-    linear-gradient(90deg, rgba(206, 216, 226, 0.28) 1px, transparent 1px),
-    linear-gradient(rgba(206, 216, 226, 0.28) 1px, transparent 1px),
-    #f6f9fc;
-  background-size: 48px 48px, 48px 48px, auto;
-  cursor: crosshair;
+  background: #f6f9fc;
 }
 
-.grid-overlay {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 18% 22%, rgba(131, 148, 179, 0.06), transparent 18%),
-    radial-gradient(circle at 80% 70%, rgba(131, 148, 179, 0.07), transparent 24%);
-}
-
-.street {
-  position: absolute;
-  background: rgba(146, 155, 168, 0.5);
-  border-radius: 999px;
-}
-
-.street-horizontal {
-  height: 10px;
-  left: 6%;
-  right: 8%;
-}
-
-.street-horizontal--top {
-  top: 20%;
-}
-
-.street-horizontal--middle {
-  top: 48%;
-}
-
-.street-horizontal--bottom {
-  top: 74%;
-}
-
-.street-vertical {
-  width: 10px;
-  top: 8%;
-  bottom: 10%;
-}
-
-.street-vertical--left {
-  left: 18%;
-}
-
-.street-vertical--middle {
-  left: 52%;
-}
-
-.street-vertical--right {
-  right: 16%;
-}
-
-.zone {
-  position: absolute;
-  border-radius: 26px;
-}
-
-.zone-park {
-  background: rgba(171, 223, 187, 0.75);
-}
-
-.zone-park--north {
-  top: 11%;
-  left: 60%;
-  width: 24%;
-  height: 18%;
-}
-
-.zone-park--south {
-  bottom: 16%;
-  left: 12%;
-  width: 26%;
-  height: 20%;
-}
-
-.zone-water {
-  top: 36%;
-  right: 10%;
-  width: 23%;
-  height: 25%;
-  background: rgba(177, 219, 247, 0.8);
-  border-radius: 40% 58% 50% 45%;
+.real-map {
+  height: 100%;
+  min-height: 560px;
+  width: 100%;
 }
 
 .legend-card {
@@ -188,54 +105,30 @@
   background: #9aa5b2;
 }
 
-.map-pin {
-  position: absolute;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  transform: translate(-50%, -100%);
-  cursor: pointer;
-}
-
-.map-pin__pulse,
-.map-pin__dot {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-}
-
-.map-pin__pulse {
-  background: rgba(103, 80, 255, 0.2);
-  transform: scale(1.55);
-}
-
-.map-pin__dot {
-  background: linear-gradient(180deg, #7c6cff, #5742dc);
-  box-shadow: 0 10px 20px rgba(87, 66, 220, 0.32);
-}
-
-.map-pin::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  bottom: -9px;
-  width: 12px;
-  height: 12px;
-  background: #5742dc;
-  transform: translateX(-50%) rotate(45deg);
-  border-radius: 2px;
-}
-
 .preferences-card {
   padding: 28px;
+}
+
+.recommendations-card {
+  padding: 24px 26px;
 }
 
 .preferences-card h2 {
   margin: 0 0 24px;
   color: #15202b;
   font-size: 1.5rem;
+}
+
+.recommendations-card h2 {
+  margin: 0 0 12px;
+  color: #15202b;
+  font-size: 1.35rem;
+}
+
+.recommendations-card p {
+  margin: 0;
+  color: #6b7682;
+  line-height: 1.5;
 }
 
 .field-group {
@@ -299,7 +192,8 @@
     grid-template-columns: 1fr;
   }
 
-  .map-surface {
+  .map-surface,
+  .real-map {
     min-height: 460px;
   }
 }
@@ -317,7 +211,8 @@
     padding: 22px;
   }
 
-  .map-surface {
+  .map-surface,
+  .real-map {
     min-height: 360px;
   }
 }
