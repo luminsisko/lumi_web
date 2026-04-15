@@ -23,6 +23,8 @@
 - refactored admin places into a map-first page with Helsinki weather-region borders and region selection by map click
 - updated `GET /api/weather-regions` usage to the latest contract using `boundary.coordinates[0]`, `[lon, lat]`, `region_id`, `area_slug`, `center_lat`, and `center_lon`
 - separated client and admin map behavior so weather-region visualization remains admin-only while the client map shows weather, astronomy, and places on click
+- replaced the client/admin mode switcher with a `Home / Client / Admin` menu and added a new home page route
+- updated `GET /api/places/local-nearby` to the latest response shape using `experience_kind`, `is_always_open`, `opening_hours_raw`, and `hours_note`
 
 ## Waiting on
 - backend and shared-client contract evolution for future admin pages

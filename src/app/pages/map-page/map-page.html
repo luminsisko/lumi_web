@@ -164,8 +164,8 @@
         @if (hasDisplayValue(place.category)) {
           <p><strong>{{ formatFieldLabel('category') }}:</strong> {{ formatFieldValue('category', place.category) }}</p>
         }
-        @if (hasDisplayValue(place.place_kind)) {
-          <p><strong>{{ formatFieldLabel('place_kind') }}:</strong> {{ formatFieldValue('place_kind', place.place_kind) }}</p>
+        @if (hasDisplayValue(place.experience_kind)) {
+          <p><strong>{{ formatFieldLabel('experience_kind') }}:</strong> {{ formatFieldValue('experience_kind', place.experience_kind) }}</p>
         }
         @if (hasDisplayValue(place.description)) {
           <p><strong>{{ formatFieldLabel('description') }}:</strong> {{ formatFieldValue('description', place.description) }}</p>
@@ -179,11 +179,14 @@
         @if (hasDisplayValue(place.address)) {
           <p><strong>{{ formatFieldLabel('address') }}:</strong> {{ formatFieldValue('address', place.address) }}</p>
         }
-        @if (hasDisplayValue(place.open_time)) {
-          <p><strong>{{ formatFieldLabel('open_time') }}:</strong> {{ formatFieldValue('open_time', place.open_time) }}</p>
+        @if (hasDisplayValue(place.is_always_open)) {
+          <p><strong>{{ formatFieldLabel('is_always_open') }}:</strong> {{ formatFieldValue('is_always_open', place.is_always_open) }}</p>
         }
-        @if (hasDisplayValue(place.close_time)) {
-          <p><strong>{{ formatFieldLabel('close_time') }}:</strong> {{ formatFieldValue('close_time', place.close_time) }}</p>
+        @if (hasDisplayValue(place.opening_hours_raw)) {
+          <p><strong>{{ formatFieldLabel('opening_hours_raw') }}:</strong> {{ formatFieldValue('opening_hours_raw', place.opening_hours_raw) }}</p>
+        }
+        @if (hasDisplayValue(place.hours_note)) {
+          <p><strong>{{ formatFieldLabel('hours_note') }}:</strong> {{ formatFieldValue('hours_note', place.hours_note) }}</p>
         }
         @if (hasDisplayValue(place.mood_tags)) {
           <p><strong>{{ formatFieldLabel('mood_tags') }}:</strong> {{ formatFieldValue('mood_tags', place.mood_tags) }}</p>

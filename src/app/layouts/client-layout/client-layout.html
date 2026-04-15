@@ -1,22 +1,4 @@
 <div class="client-shell">
-  <header class="topbar">
-    <div>
-      <p class="eyebrow">Lumi</p>
-      <h1>Client Mode</h1>
-    </div>
-
-    <nav class="mode-switch" aria-label="Application mode">
-      <a
-        routerLink="/client"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: true }"
-      >
-        Client
-      </a>
-      <a routerLink="/admin" routerLinkActive="active">Admin</a>
-    </nav>
-  </header>
-
   <main class="client-content">
     <router-outlet></router-outlet>
   </main>

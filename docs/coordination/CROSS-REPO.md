@@ -26,3 +26,4 @@ Web UI owns browser rendering, forms, and navigation. It does not own business r
 
 ## Current contract note
 The web client now expects `GET /api/weather-regions` to provide `regions`, where each region uses `region_id`, `area_slug`, `center_lat`, `center_lon`, and `boundary.coordinates[0]` with coordinates in `[lon, lat]` order.
+The web client also expects `GET /api/places/local-nearby` to return `experience_kind`, `is_always_open`, `opening_hours_raw`, and `hours_note`, with tag fields as comma-separated strings rather than arrays.

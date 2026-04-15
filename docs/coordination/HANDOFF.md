@@ -18,6 +18,8 @@
 - added admin region selection by map click with selected region highlight and details card under the map
 - aligned the weather-region client adapter and map rendering with the latest backend contract based on `boundary.coordinates[0]` polygon rings in `[lon, lat]` order
 - removed weather-region overlays and region detail UI from the client map to keep client and admin map functionality separate
+- replaced the top-level client/admin switcher with `Home`, `Client`, and `Admin` navigation links and added a minimal `/home` page
+- aligned local nearby places with the latest backend contract and removed old `place_kind` / `open_time` / `close_time` assumptions from the client page
 
 ## What remains
 - keep replacing admin placeholder pages with real implementations
@@ -33,8 +35,13 @@
 - src/app/pages/admin-places-page/admin-places-page.ts
 - src/app/pages/admin-places-page/admin-places-page.html
 - src/app/pages/admin-places-page/admin-places-page.scss
+- src/app/pages/home-page/home-page.ts
+- src/app/pages/home-page/home-page.html
+- src/app/pages/home-page/home-page.scss
 - src/app/pages/map-page/map-page.ts
 - src/app/pages/map-page/map-page.html
+- src/app/layouts/client-layout/client-layout.html
+- src/app/layouts/admin-layout/admin-layout.html
 - src/app/services/lumi-api.ts
 - src/app/services/lumi-api.spec.ts
 - docs/coordination/STATUS.md

@@ -1,0 +1,95 @@
+<section class="home-page">
+  <div class="home-page__inner">
+    <header class="hero">
+      <h1>Travel Companion</h1>
+      <p>Discover amazing places based on your mood and preferences</p>
+    </header>
+
+    <main class="home-layout">
+      <section class="map-panel" aria-labelledby="map-panel-title">
+        <div class="map-card">
+          <div
+            class="map-surface"
+            (click)="onMapClick($event)"
+            aria-label="Map mockup"
+            role="button"
+            tabindex="0"
+          >
+            <div class="grid-overlay"></div>
+
+            <div class="street street-horizontal street-horizontal--top"></div>
+            <div class="street street-horizontal street-horizontal--middle"></div>
+            <div class="street street-horizontal street-horizontal--bottom"></div>
+            <div class="street street-vertical street-vertical--left"></div>
+            <div class="street street-vertical street-vertical--middle"></div>
+            <div class="street street-vertical street-vertical--right"></div>
+
+            <div class="zone zone-park zone-park--north"></div>
+            <div class="zone zone-park zone-park--south"></div>
+            <div class="zone zone-water"></div>
+
+            @if (selectedPoint) {
+              <button
+                type="button"
+                class="map-pin"
+                [style.left.%]="selectedPoint.xPercent"
+                [style.top.%]="selectedPoint.yPercent"
+                aria-label="Selected point"
+              >
+                <span class="map-pin__pulse"></span>
+                <span class="map-pin__dot"></span>
+              </button>
+            }
+
+            <div class="legend-card">
+              <div class="legend-item">
+                <span class="legend-dot legend-dot--park"></span>
+                <span>Parks</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot legend-dot--water"></span>
+                <span>Water</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-line"></span>
+                <span>Streets</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="preferences-card" aria-labelledby="preferences-title">
+        <h2 id="preferences-title">Your Preferences</h2>
+
+        <div class="field-group">
+          <label for="mood-select">What's your mood?</label>
+          <select id="mood-select" [value]="selectedMood" (change)="onMoodChange($any($event.target).value)">
+            <option value="" disabled>Select your mood</option>
+            @for (mood of moods; track mood) {
+              <option [value]="mood">{{ mood }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field-group">
+          <div class="distance-heading">Walking Distance: {{ walkingDistanceKm }} km</div>
+          <input
+            type="range"
+            min="0.5"
+            max="5"
+            step="0.5"
+            [value]="walkingDistanceKm"
+            (input)="onDistanceInput($any($event.target).value)"
+          />
+          <div class="range-labels">
+            <span>0.5 km</span>
+            <span>5 km</span>
+          </div>
+        </div>
+
+        <button type="button" class="primary-action">Get Recommendations</button>
+      </aside>
+    </main>
+  </div>
+</section>

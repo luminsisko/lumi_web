@@ -1,1 +1,15 @@
-<router-outlet></router-outlet>
+<div class="app-shell">
+  <header class="app-header">
+    <p class="app-brand">Lumi</p>
+
+    <nav class="app-menu" aria-label="Main menu">
+      <a routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        Home
+      </a>
+      <a routerLink="/client" routerLinkActive="active">Client</a>
+      <a routerLink="/admin/dashboard" routerLinkActive="active">Admin</a>
+    </nav>
+  </header>
+
+  <router-outlet></router-outlet>
+</div>

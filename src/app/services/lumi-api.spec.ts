@@ -322,21 +322,22 @@ describe('LumiApi', () => {
         {
           id: 'place-near',
           name: 'Cafe Near',
-          city: 'Helsinki',
+          city: null,
           area: 'Kamppi',
           category: 'cafe',
-          place_kind: 'discovery',
+          experience_kind: 'social_place',
           description: 'Close place',
           latitude: 60.1699,
           longitude: 24.9384,
           address: 'Near street 1',
-          open_time: '08:00:00',
-          close_time: '20:00:00',
-          mood_tags: ['calm'],
-          weather_tags: ['dry'],
-          time_of_day_tags: ['day'],
-          season_tags: ['spring'],
-          best_months: ['april'],
+          is_always_open: false,
+          opening_hours_raw: 'Mo-Fr 08:00-18:00',
+          hours_note: 'Opening hours may vary on holidays',
+          mood_tags: 'calm,cozy',
+          weather_tags: 'rain',
+          time_of_day_tags: 'morning',
+          season_tags: 'spring',
+          best_months: '4,5,6',
           distance_meters: 0
         }
       ]
@@ -346,21 +347,22 @@ describe('LumiApi', () => {
       {
         id: 'place-near',
         name: 'Cafe Near',
-        city: 'Helsinki',
+        city: null,
         area: 'Kamppi',
         category: 'cafe',
-        place_kind: 'discovery',
+        experience_kind: 'social_place',
         description: 'Close place',
         latitude: 60.1699,
         longitude: 24.9384,
         address: 'Near street 1',
-        open_time: '08:00:00',
-        close_time: '20:00:00',
-        mood_tags: ['calm'],
-        weather_tags: ['dry'],
-        time_of_day_tags: ['day'],
-        season_tags: ['spring'],
-        best_months: ['april'],
+        is_always_open: false,
+        opening_hours_raw: 'Mo-Fr 08:00-18:00',
+        hours_note: 'Opening hours may vary on holidays',
+        mood_tags: 'calm,cozy',
+        weather_tags: 'rain',
+        time_of_day_tags: 'morning',
+        season_tags: 'spring',
+        best_months: '4,5,6',
         distance_meters: 0
       }
     ]);
@@ -376,6 +378,20 @@ describe('LumiApi', () => {
   it('should reject invalid local nearby place limit before the request is sent', () => {
     expect(() => service.getLocalNearbyPlaces('60.1699', '24.9384', '250', '0')).toThrowError(
       'Invalid limit: 0'
+    );
+    httpTesting.expectNone('/api/places/local-nearby');
+  });
+
+  it('should reject local nearby place radius above the supported maximum', () => {
+    expect(() => service.getLocalNearbyPlaces('60.1699', '24.9384', '5001', '15')).toThrowError(
+      'Invalid radius: 5001'
+    );
+    httpTesting.expectNone('/api/places/local-nearby');
+  });
+
+  it('should reject local nearby place limit above the supported maximum', () => {
+    expect(() => service.getLocalNearbyPlaces('60.1699', '24.9384', '250', '51')).toThrowError(
+      'Invalid limit: 51'
     );
     httpTesting.expectNone('/api/places/local-nearby');
   });

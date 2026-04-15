@@ -86,18 +86,19 @@ export interface LocalNearbyPlace {
   city: string | null;
   area: string | null;
   category: string | null;
-  place_kind: string | null;
+  experience_kind: string | null;
   description: string | null;
   latitude: number | null;
   longitude: number | null;
   address: string | null;
-  open_time: string | null;
-  close_time: string | null;
-  mood_tags: string[] | null;
-  weather_tags: string[] | null;
-  time_of_day_tags: string[] | null;
-  season_tags: string[] | null;
-  best_months: string[] | null;
+  is_always_open: boolean | null;
+  opening_hours_raw: string | null;
+  hours_note: string | null;
+  mood_tags: string | null;
+  weather_tags: string | null;
+  time_of_day_tags: string | null;
+  season_tags: string | null;
+  best_months: string | null;
   distance_meters: number | null;
 }
 
@@ -169,18 +170,19 @@ interface LocalNearbyPlaceApiItem {
   city?: string | null;
   area?: string | null;
   category?: string | null;
-  place_kind?: string | null;
+  experience_kind?: string | null;
   description?: string | null;
   latitude?: number | null;
   longitude?: number | null;
   address?: string | null;
-  open_time?: string | null;
-  close_time?: string | null;
-  mood_tags?: string[] | null;
-  weather_tags?: string[] | null;
-  time_of_day_tags?: string[] | null;
-  season_tags?: string[] | null;
-  best_months?: string[] | null;
+  is_always_open?: boolean | null;
+  opening_hours_raw?: string | null;
+  hours_note?: string | null;
+  mood_tags?: string | null;
+  weather_tags?: string | null;
+  time_of_day_tags?: string | null;
+  season_tags?: string | null;
+  best_months?: string | null;
   distance_meters?: number | null;
 }
 
@@ -289,8 +291,8 @@ export class LumiApi {
       fromObject: {
         lat: this.parseCoordinate(lat, 'lat'),
         lon: this.parseCoordinate(lon, 'lon'),
-        radius: this.parsePositiveNumber(radius, 'radius'),
-        limit: this.parsePositiveInteger(limit, 'limit')
+        radius: this.parseBoundedNumber(radius, 'radius', 5000),
+        limit: this.parseBoundedInteger(limit, 'limit', 50)
       }
     });
 
@@ -329,6 +331,26 @@ export class LumiApi {
     const parsed = typeof value === 'number' ? value : Number.parseFloat(value.trim());
 
     if (!Number.isInteger(parsed) || parsed <= 0) {
+      throw new Error(`Invalid ${label}: ${value}`);
+    }
+
+    return parsed.toString();
+  }
+
+  private parseBoundedNumber(value: number | string, label: string, max: number): string {
+    const parsed = typeof value === 'number' ? value : Number.parseFloat(value.trim());
+
+    if (!Number.isFinite(parsed) || parsed <= 0 || parsed > max) {
+      throw new Error(`Invalid ${label}: ${value}`);
+    }
+
+    return parsed.toString();
+  }
+
+  private parseBoundedInteger(value: number | string, label: string, max: number): string {
+    const parsed = typeof value === 'number' ? value : Number.parseFloat(value.trim());
+
+    if (!Number.isInteger(parsed) || parsed <= 0 || parsed > max) {
       throw new Error(`Invalid ${label}: ${value}`);
     }
 
@@ -432,13 +454,14 @@ export class LumiApi {
       city: place.city ?? null,
       area: place.area ?? null,
       category: place.category ?? null,
-      place_kind: place.place_kind ?? null,
+      experience_kind: place.experience_kind ?? null,
       description: place.description ?? null,
       latitude: place.latitude ?? null,
       longitude: place.longitude ?? null,
       address: place.address ?? null,
-      open_time: place.open_time ?? null,
-      close_time: place.close_time ?? null,
+      is_always_open: place.is_always_open ?? null,
+      opening_hours_raw: place.opening_hours_raw ?? null,
+      hours_note: place.hours_note ?? null,
       mood_tags: place.mood_tags ?? null,
       weather_tags: place.weather_tags ?? null,
       time_of_day_tags: place.time_of_day_tags ?? null,

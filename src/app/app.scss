@@ -1,3 +1,55 @@
 :host {
   display: block;
 }
+
+.app-shell {
+  min-height: 100vh;
+  background: #f4f7fa;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 24px;
+  border-bottom: 1px solid #d9e0e7;
+  background: #ffffff;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.app-brand {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  color: #5f6c7b;
+}
+
+.app-menu {
+  display: inline-flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.app-menu a {
+  padding: 10px 14px;
+  border-radius: 999px;
+  color: #223041;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.app-menu a.active {
+  background: #223041;
+  color: #ffffff;
+}
+
+@media (max-width: 700px) {
+  .app-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

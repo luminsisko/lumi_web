@@ -1,5 +1,5 @@
 .admin-shell {
-  min-height: 100vh;
+  min-height: calc(100vh - 73px);
   display: grid;
   grid-template-columns: 280px 1fr;
   background: #f4f7fa;
@@ -25,25 +25,6 @@
   letter-spacing: 0.12em;
   font-size: 0.75rem;
   color: #aebdca;
-}
-
-.mode-switch {
-  display: grid;
-  gap: 8px;
-}
-
-.mode-switch a {
-  padding: 10px 14px;
-  border-radius: 12px;
-  color: #e7edf3;
-  text-decoration: none;
-  font-weight: 600;
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.mode-switch a.active {
-  background: #ffffff;
-  color: #223041;
 }
 
 .admin-nav {

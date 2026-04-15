@@ -1,7 +1,13 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'client' },
+  { path: '', pathMatch: 'full', redirectTo: 'home' },
+  {
+    path: 'home',
+    loadComponent: () =>
+      import('./pages/home-page/home-page').then((module) => module.HomePage),
+    title: 'Lumi Home'
+  },
   {
     path: 'client',
     loadComponent: () =>
@@ -90,5 +96,5 @@ export const routes: Routes = [
       }
     ]
   },
-  { path: '**', redirectTo: 'client' }
+  { path: '**', redirectTo: 'home' }
 ];
